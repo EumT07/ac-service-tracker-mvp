@@ -4,8 +4,6 @@
 
 **Ac Service Tracker MVP** is a specialized **CRM (Customer Relationship Management)** and **CMMS (Computerized Maintenance Management System)** designed to optimize the cleaning and maintenance service for air conditioning units.
 
-This system is developed for technicians and companies looking to professionalize the management of their operations.
-
 ### 🎯 Key Features (MVP)
 
 * **Client and Asset Management:** Centralizes information about clients and their installed A/C units.
@@ -23,6 +21,52 @@ This system is developed for technicians and companies looking to professionaliz
 | **Frontend** | HTML5, CSS, JavaScript (Vanilla/Lightweight Library) |
 | **Data Analysis** | Pandas and Matplotlib |
 | **Automation** | n8n |
+
+## ⚙️ Using: UV
+
+1. **Clone the repository**
+  ```bash
+   git clone https://github.com/EumT07/ac-service-tracker-mvp.git
+   cd ac-service-tracker-mvp
+   ```
+2. **Create virtual environment**
+  ```bash
+  uv venv
+  ```
+3. **Install dependencies**
+  ```bash
+  uv pip install -r pyproject.toml
+  ```
+  or
+  ```bash
+  uv  sync
+  ```
+
+  ## ⚙️ Using: Pip
+
+1. **Clone the repository**
+  ```bash
+   git clone https://github.com/EumT07/ac-service-tracker-mvp.git
+   cd ac-service-tracker-mvp
+   ```
+2. **Create virtual environment**
+  ```bash
+  python -m venv .venv
+  ```
+3. **Activate virtual environment**
+    # On Windows:
+    ```bash
+    .venv\Scripts\activate
+    ```
+    # On macOS/Linux:
+    ```bash
+    source .venv/bin/activate
+    ```
+
+4. **Install dependencies**
+  ```bash
+  pip install -e .
+  ```
 
 Author: Eublan Mata
 
