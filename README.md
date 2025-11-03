@@ -69,3 +69,7 @@
   ```
 
 Author: Eublan Mata
+
+<p align="center">
+  <img src="https://github.com/EumT07/ac-service-tracker-mvp/blob/master/assest/maintenance.webp" width="450" height="300"  alt="home" />
+</p>
