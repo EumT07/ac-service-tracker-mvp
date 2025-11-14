@@ -78,3 +78,7 @@ A comprehensive database system for managing HVAC maintenance operations, client
 - Automated timestamp tracking
 - Comprehensive indexing for performance
 - Standardized failure categorization
+
+<p align="center">
+  <img src="https://github.com/EumT07/ac-service-tracker-mvp/blob/development/sql/assest/sql_table_structure.png" width="750" height="600"  alt="home" />
+</p>
