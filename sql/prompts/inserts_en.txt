@@ -1,0 +1,96 @@
+## CONTEXT
+I'm a software developer creating an **HVAC (Heating, Ventilation, and Air Conditioning) maintenance management system**. I need to generate **realistic and coherent test data** for testing and demonstrations.
+
+## OBJECTIVE
+Generate a complete and coherent dataset for an HVAC maintenance management system that includes: **users, clients, equipment, maintenance orders, failures, and inspections.**
+
+## Years
+Between 2023-2025
+
+## REQUIRED DATA STRUCTURE
+
+### 1. USERS (16 records)
+* **2 Administrators**: Full system access
+* **3 Operators**: Administrative management, job assignment
+* **6 Technicians**: 4 men, 2 women - perform maintenance and inspections
+* **5 Additional Technicians**: For scalability
+
+### 2. CLIENTS (45 distributed records)
+* **15 clients** with equipment in good condition (preventive maintenance only)
+* **10 clients** with equipment requiring corrective maintenance (compressor/refrigerant)
+* **15 clients** with multiple pieces of equipment (1-3 per client) needing diverse maintenance
+* **5 clients** with pending inspection orders
+
+### 3. EQUIPMENT (50+ records)
+* **Real Brands**: LG, Samsung, Carrier, Daikin, Midea
+* **Types**: Split AC, Window AC, Central AC, Heat Pump, Furnace
+* **Capacities**: 9,000 - 24,000 BTU (residential/commercial units)
+* **Realistic Locations**: "Living Room", "Master Bedroom", "Office Area", etc.
+* **Statuses**: Operational, Requires Repair, Out of Service
+
+### 4. MAINTENANCE TYPES (6 types)
+* PM (Preventive Maintenance): Cleaning every 5 months
+* CM (Corrective Maintenance):
+    * Pressure monitoring (2 weeks for critical equipment)
+    * Compressor replacement
+    * Refrigerant recharge
+    * Capacitor replacement
+    * Capillary tube replacement
+
+### 5. FAILURE TYPES (13 categories)
+* Electrical: Compressor failures, capacitors, fan motors
+* Mechanical: High motor vibration, mechanical compressor failure
+* Refrigeration: Refrigerant leaks, low charge, capillary tube blockage
+* Airflow: Dirty coils
+* Control System: Thermostat failures
+* Noise/Vibration: Abnormal compressor noise
+
+### 6. MAINTENANCE ORDERS (30+ records)
+* Distributed between preventive and corrective
+* With statuses: scheduled, in_progress, completed
+* With realistic costs: labor, parts, total
+* With consistent scheduling and completion dates
+* Keep in mind dates between 2025-2026 (you can include those coompleted maintenance, but try to add new orders for future, in order to make this more realistic)
+
+### 7. EQUIPMENT FAILURES (20+ records)
+* Linked to specific maintenance orders
+* With severities: Low, Medium, High, Critical
+* With realistic repair times
+
+### 8. INSPECTIONS (15 records)
+* With real technical readings: suction pressure, supply/return temperature, amperage
+* Statuses: Pending, Converted to Maintenance, Rejected
+
+## QUALITY CRITERIA
+
+### TEMPORAL COHERENCE
+* Installation dates -> warranty dates -> logical maintenance dates
+* Temporal sequence: installation -> failure -> inspection -> maintenance order -> resolution
+
+### TECHNICAL COHERENCE
+* Pressure/temperature readings within realistic HVAC ranges
+* Appropriate BTU for the equipment type and location
+* Technical failures that correspond to reported symptoms
+
+### GEOGRAPHICAL COHERENCE
+* RFakes addresses
+* Local format phone numbers (XX-XXX-XXXX)
+
+### COMMERCIAL COHERENCE
+* Realistic costs for labor and parts
+* Appropriate work hours for each repair type
+* Client ratings based on technician notes
+
+## OUTPUT FORMAT
+Complete **SQL script** with:
+* Insertions in the correct order (respecting foreign key dependencies)
+* Data balanced between different statuses and types
+* Consistent ID formats (USER001, CLI001, EQ001, MO001, etc.)
+* SQL comments for important sections
+
+## SPECIFIC HVAC TECHNICAL DATA
+* Supply Temperature: 55F-65F (cooling), 85F-95F (heating)
+* Return Temperature: Ambient temperature (70F-80F)
+* Normal Temperature Differential: 15F-22F
+* Suction Pressure: 60-75 PSI for R410A
+* Amperage: according to equipment capacity (5-15 amps for residential units)

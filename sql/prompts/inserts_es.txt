@@ -1,0 +1,96 @@
+## CONTEXTO
+Soy desarrollador de software creando un sistema de gestión de mantenimiento HVAC (Heating, Ventilation, and Air Conditioning). Necesito generar datos de prueba realistas y coherentes para testing y demostraciones.
+
+## OBJETIVO
+Generar un dataset completo y coherente para un sistema de gestión de mantenimiento HVAC que incluya: usuarios, clientes, equipos, órdenes de mantenimiento, fallas e inspecciones.
+
+## Años
+Entre 2023-2025
+
+## ESTRUCTURA DE DATOS REQUERIDA
+
+### 1. USUARIOS (16 registros)
+- **2 Administradores**: Acceso total al sistema
+- **3 Operadores**: Gestión administrativa, asignación de trabajos
+- **6 Técnicos**: 4 hombres, 2 mujeres - ejecutan mantenimientos e inspecciones
+- **5 Técnicos adicionales**: Para escalabilidad
+
+### 2. CLIENTES (45 registros distribuidos)
+- **15 clientes** con equipos en buen estado (solo mantenimiento preventivo)
+- **10 clientes** con equipos que requieren mantenimiento correctivo (compresor/refrigerante)
+- **15 clientes** con múltiples equipos (1-3 por cliente) que necesitan diversos mantenimientos
+- **5 clientes** con órdenes de inspección pendientes
+
+### 3. EQUIPOS (50+ registros)
+- **Marcas reales**: LG, Samsung, Carrier, Daikin, Midea
+- **Tipos**: Split AC, Window AC, Central AC, Heat Pump, Furnace
+- **Capacidades**: 9,000 - 24,000 BTU (equipos residenciales/comerciales)
+- **Ubicaciones realistas**: "Living Room", "Master Bedroom", "Office Area", etc.
+- **Estados**: Operational, Requires Repair, Out of Service
+
+### 4. TIPOS DE MANTENIMIENTO (6 tipos)
+- PM (Preventive Maintenance): Limpieza cada 5 meses
+- CM (Corrective Maintenance): 
+  - Monitoreo de presiones (2 semanas para equipos críticos)
+  - Reemplazo de compresor
+  - Recarga de refrigerante
+  - Reemplazo de capacitores
+  - Reemplazo de tubo capilar
+
+### 5. TIPOS DE FALLA (13 categorías)
+- Eléctricas: Fallas de compresor, capacitores, motores de ventilador
+- Mecánicas: Vibración alta del motor, falla mecánica de compresor
+- Refrigeración: Fugas de refrigerante, carga baja, bloqueo de tubo capilar
+- Flujo de aire: Bobinas sucias
+- Sistema de control: Fallas de termostato
+- Ruido/Vibración: Ruido anormal de compresor
+
+### 6. ÓRDENES DE MANTENIMIENTO (30+ registros)
+- Distribuidas entre preventivas y correctivas
+- Con estados: scheduled, in_progress, completed
+- Con costos realistas: mano de obra, partes, total
+- Con fechas coherentes de programación y completado
+- Ten presente que las fechas deben estar entre 2025 - 2025 para hacerlas mas realistas
+
+### 7. FALLAS DE EQUIPOS (20+ registros)
+- Vinculadas a órdenes de mantenimiento específicas
+- Con severidades: Low, Medium, High, Critical
+- Con tiempos de reparación realistas
+
+### 8. INSPECCIONES (15 registros)
+- Con lecturas técnicas reales: presión de succión, temperatura supply/return, amperaje
+- Estados: Pending, Converted to Maintenance, Rejected
+
+## CRITERIOS DE CALIDAD
+
+### COHERENCIA TEMPORAL
+- Fechas de instalación → fechas de warranty → fechas de mantenimiento lógicas
+- Secuencia temporal: instalación → falla → inspección → orden de mantenimiento → resolución
+
+### COHERENCIA TÉCNICA
+- Lecturas de presión/temperatura dentro de rangos realistas para HVAC
+- BTU apropiados para el tipo de equipo y ubicación
+- Fallas técnicas que correspondan con síntomas reportados
+
+### COHERENCIA GEOGRÁFICA
+- Direcciones ficticias
+- Teléfonos con formato local (XX-XXX-XXXX)
+
+### COHERENCIA COMERCIAL
+- Costos realistas para mano de obra y partes
+- Horas de trabajo apropiadas para cada tipo de reparación
+- Ratings de clientes basados en notas de técnicos
+
+## FORMATO DE SALIDA
+Script SQL completo con:
+- Inserciones en orden correcto (respetando dependencias foreign key)
+- Datos balanceados entre diferentes estados y tipos
+- IDs con formatos consistentes (USER001, CLI001, EQ001, MO001, etc.)
+- Comentarios SQL para secciones importantes
+
+## DATOS TÉCNICOS ESPECÍFICOS HVAC
+- Temperatura supply: 55°F-65°F (enfriamiento), 85°F-95°F (calefacción)
+- Temperatura return: temperatura ambiente (70°F-80°F)
+- Diferencial de temperatura normal: 15°F-22°F
+- Presión de succión: 60-75 PSI para R410A
+- Amperaje: según capacidad del equipo (5-15 amps para equipos residenciales)

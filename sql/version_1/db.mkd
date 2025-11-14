@@ -1,0 +1,158 @@
+### You can watch model tables here
+https://dbdiagram.io
+
+** Create new dirgram Copy and paste **
+
+Table "clients" {
+  "id" VARCHAR(50) [pk]
+  "first_name" VARCHAR(50) [not null]
+  "last_name" VARCHAR(50) [not null]
+  "email" VARCHAR(255) [unique, not null]
+  "gender" VARCHAR(50) [check: `gender IN ('Male', 'Female')`]
+  "phone" VARCHAR(50) [unique, not null]
+  "address" TEXT
+  "client_type" VARCHAR(50) [check: `client_type IN ('Residential', 'Commercial')`, default: 'Residential']
+  "created_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "users" {
+  "id" VARCHAR(50) [pk]
+  "first_name" VARCHAR(50) [not null]
+  "last_name" VARCHAR(50) [not null]
+  "email" VARCHAR(255) [unique, not null]
+  "phone" VARCHAR(50) [unique, not null]
+  "gender" VARCHAR(50) [check: `gender IN ('Male', 'Female')`]
+  "address" TEXT
+  "password" VARCHAR(255) [not null]
+  "role" VARCHAR(50) [check: `role IN ('admin', 'technician', 'operator')`, default: 'technician']
+  "hourly_rate" DECIMAL(10,2) [default: 0]
+  "is_active" BOOLEAN [default: TRUE]
+  "created_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "maintenance_types" {
+  "id" VARCHAR(50) [pk]
+  "code" VARCHAR(10) [unique, not null, check: `code IN ('PM', 'CM', 'PdM')`]
+  "name" VARCHAR(100) [not null]
+  "frequency_days" INTEGER
+  "description" TEXT
+}
+
+Table "failure_types" {
+  "id" VARCHAR(50) [pk]
+  "category" VARCHAR(100) [not null, check: `category IN (
+    'Electrical', 'Mechanical', 'Refrigeration', 'Airflow', 
+    'Control System', 'Drainage', 'Noise/Vibration', 'Other'
+  )`]
+  "name" VARCHAR(255) [unique, not null]
+  "severity" VARCHAR(50) [check: `severity IN ('Low', 'Medium', 'High', 'Critical')`]
+  "estimated_repair_hours" INTEGER [check: `estimated_repair_hours > 0`, default: 1]
+  "common_causes" TEXT
+  "is_active" BOOLEAN [default: TRUE]
+  "created_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "client_equipment" {
+  "id" VARCHAR(50) [pk]
+  "client_id" VARCHAR(50) [not null]
+  "equipment_name" VARCHAR(100) [not null]
+  "brand" VARCHAR(100) [not null]
+  "model" VARCHAR(100) [not null]
+  "serial_number" VARCHAR(100)
+  "equipment_type" VARCHAR(50) [check: `equipment_type IN (
+    'Split AC', 'Window AC', 'Central AC', 'Furnace', 'Heat Pump', 
+    'Ventilation', 'Chiller', 'Other'
+  )`]
+  "capacity_btu" INTEGER [check: `capacity_btu > 0`]
+  "location" VARCHAR(100)
+  "installation_date" DATE
+  "warranty_expiration" DATE
+  "status" VARCHAR(50) [check: `status IN (
+    'Operational', 'Requires Repair', 'Out of Service', 'Under Maintenance'
+  )`, default: 'Operational']
+  "description" TEXT
+  "created_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "maintenance_orders" {
+  "id" VARCHAR(50) [pk]
+  "client_id" VARCHAR(50) [not null]
+  "user_id" VARCHAR(50) [not null]
+  "equipment_id" VARCHAR(50) [not null]
+  "type_id" VARCHAR(50) [not null]
+  "status" VARCHAR(50) [not null, check: `status IN (
+    'scheduled', 'in_progress', 'completed', 'cancelled'
+  )`]
+  "scheduled_date" DATE [not null]
+  "completed_date" DATE
+  "technician_notes" TEXT
+  "customer_feedback" TEXT
+  "customer_rating" INTEGER [check: `customer_rating BETWEEN 1 AND 5`]
+  "labor_hours" DECIMAL(5,2) [check: `labor_hours >= 0`, default: 0]
+  "labor_cost" DECIMAL(10,2) [check: `labor_cost >= 0`, default: 0]
+  "parts_cost" DECIMAL(10,2) [check: `parts_cost >= 0`, default: 0]
+  "total_cost" DECIMAL(10,2) [check: `total_cost >= 0`, default: 0]
+  "next_maintenance_date" DATE
+  "created_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "equipment_failures" {
+  "id" VARCHAR(50) [pk]
+  "maintenance_order_id" VARCHAR(50) [not null]
+  "failure_type_id" VARCHAR(50) [not null]
+  "equipment_id" VARCHAR(50) [not null]
+  "detected_date" DATE [not null]
+  "resolved_date" DATE
+  "severity_actual" VARCHAR(50) [check: `severity_actual IN ('Low', 'Medium', 'High', 'Critical')`]
+  "repair_notes" TEXT
+  "repair_hours_actual" DECIMAL(5,2) [check: `repair_hours_actual >= 0`]
+  "created_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+}
+
+Table "inspections" {
+  "id" VARCHAR(50) [pk]
+  "client_id" VARCHAR(50) [not null]
+  "equipment_id" VARCHAR(50) [not null]
+  "user_id" VARCHAR(50) [not null]
+  "inspection_date" DATE [not null]
+  "pressure_suction" DECIMAL(10,2)
+  "temp_supply" DECIMAL(10,2)
+  "temp_return" DECIMAL(10,2)
+  "amps_reading" DECIMAL(10,2)
+  "general_notes" TEXT
+  "findings_summary" TEXT
+  "status" VARCHAR(50) [check: `status IN (
+    'Pending', 'Converted to Maintenance', 'Rejected'
+  )`, default: 'Pending']
+  "converted_to_maintenance_order_id" VARCHAR(50) [unique]
+  "created_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+  "updated_at" TIMESTAMP [default: `CURRENT_TIMESTAMP`]
+}
+
+Ref:"clients"."id" < "client_equipment"."client_id" [delete: cascade]
+
+Ref:"clients"."id" < "maintenance_orders"."client_id" [delete: cascade]
+
+Ref:"client_equipment"."id" < "maintenance_orders"."equipment_id" [delete: cascade]
+
+Ref:"maintenance_types"."id" < "maintenance_orders"."type_id" [delete: restrict]
+
+Ref:"users"."id" < "maintenance_orders"."user_id" [delete: restrict]
+
+Ref:"maintenance_orders"."id" < "equipment_failures"."maintenance_order_id" [delete: cascade]
+
+Ref:"failure_types"."id" < "equipment_failures"."failure_type_id" [delete: restrict]
+
+Ref:"client_equipment"."id" < "equipment_failures"."equipment_id" [delete: cascade]
+
+Ref:"clients"."id" < "inspections"."client_id" [delete: cascade]
+
+Ref:"client_equipment"."id" < "inspections"."equipment_id" [delete: cascade]
+
+Ref:"users"."id" < "inspections"."user_id" [delete: restrict]
+
+Ref:"maintenance_orders"."id" < "inspections"."converted_to_maintenance_order_id" [delete: set null]
