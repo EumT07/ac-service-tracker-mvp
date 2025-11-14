@@ -1,6 +1,8 @@
 ### You can watch model tables here
 https://dbdiagram.io
 
+** Create new dirgram Copy and paste **
+
 Table "clients" {
   "id" VARCHAR(50) [pk]
   "first_name" VARCHAR(50) [not null]

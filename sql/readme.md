@@ -2,8 +2,9 @@
 A comprehensive database system for managing HVAC maintenance operations, client equipment, and service history.
 
 ### 📋 Database Schema Overview
-1. **Core Entities**
-👥 Clients
+
+**Core Entities**
+1. 👥 Clients
 - Stores client information and contact details.
 - Personal information (name, email, phone, address)
 - Client type classification (Residential/Commercial)
@@ -22,14 +23,14 @@ A comprehensive database system for managing HVAC maintenance operations, client
 - Current operational status
 - Location-specific information
 
-4. Maintenance Management
-🔄 Maintenance Types
+**Maintenance Management**
+1. 🔄 Maintenance Types
 - Defines different types of maintenance services.
 - Preventive (PM), Corrective (CM), Predictive (PdM) maintenance
 - Standardized frequency intervals
 - Service descriptions
 
-5. 📝 Maintenance Orders
+2. 📝 Maintenance Orders
 - Core table for managing service requests and work orders.
 - Service scheduling and status tracking
 - Cost breakdown (labor, parts, total)
@@ -37,7 +38,7 @@ A comprehensive database system for managing HVAC maintenance operations, client
 - Customer feedback and ratings
 - Next maintenance date calculation
 
-6. **Technical Components**
+**Technical Components**
 1. ⚠️ Failure Types
 - Standardized catalog of common HVAC equipment failures.
 - Categorized failure types (Electrical, Mechanical, Refrigeration, etc.)

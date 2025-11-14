@@ -1,8 +1,8 @@
--- =============================================================================
--- TABLAS BASE
--- =============================================================================
+-- ======
+-- Tables
+-- ======
 
--- 1. CLIENTS
+-- 1. Clients
 CREATE TABLE clients (
   id VARCHAR(50) PRIMARY KEY,
   first_name VARCHAR(50),
@@ -16,7 +16,7 @@ CREATE TABLE clients (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. USERS/TECHNICIANS
+-- 2. User/Technicians
 CREATE TABLE users (
   id VARCHAR(50) PRIMARY KEY,
   first_name VARCHAR(50) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE users (
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. MAINTENANCE TYPES
+-- 3. Maintenance Types
 CREATE TABLE maintenance_types (
   id VARCHAR(50) PRIMARY KEY,
   code VARCHAR(10) UNIQUE NOT NULL CHECK (code IN ('PM', 'CM', 'PdM')),
@@ -42,7 +42,7 @@ CREATE TABLE maintenance_types (
   description TEXT
 );
 
--- 4. FAILURE TYPES
+-- 4. Failure Types
 CREATE TABLE failure_types (
   id VARCHAR(50) PRIMARY KEY,
   category VARCHAR(100) NOT NULL CHECK (category IN (
@@ -57,11 +57,7 @@ CREATE TABLE failure_types (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- =============================================================================
--- TABLAS PRINCIPALES
--- =============================================================================
-
--- 5. CLIENT_EQUIPMENT
+-- 5. Client Equipment
 CREATE TABLE client_equipment (
   id VARCHAR(50) PRIMARY KEY,
   client_id VARCHAR(50) NOT NULL,
@@ -86,7 +82,7 @@ CREATE TABLE client_equipment (
   FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE
 );
 
--- 6. MAINTENANCE ORDERS (Tabla principal)
+-- 6. Maintenance Orders
 CREATE TABLE maintenance_orders (
   id VARCHAR(50) PRIMARY KEY,
   client_id VARCHAR(50) NOT NULL,
@@ -114,7 +110,7 @@ CREATE TABLE maintenance_orders (
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
 );
 
--- 7. EQUIPMENT_FAILURES
+-- 7. Equipment Failures
 CREATE TABLE equipment_failures (
   id VARCHAR(50) PRIMARY KEY,
   maintenance_order_id VARCHAR(50) NOT NULL,
@@ -131,7 +127,7 @@ CREATE TABLE equipment_failures (
   FOREIGN KEY (equipment_id) REFERENCES client_equipment(id) ON DELETE CASCADE
 );
 
--- 8. INSPECTIONS
+-- 8. Inspections
 CREATE TABLE inspections (
   id VARCHAR(50) PRIMARY KEY,
   client_id VARCHAR(50) NOT NULL,
