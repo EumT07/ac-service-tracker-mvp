@@ -1,5 +1,18 @@
-CREATE DATABASE IF NOT EXISTS maintenance_management_test; -- Test Database
-CREATE DATABASE IF NOT EXISTS maintenance_management; -- Productions Database
+-- Test Database
+
+-- Drop if table Exists
+DROP DATABASE IF EXISTS maintenance_management_test;
+-- Create DataBases
+CREATE DATABASE maintenance_management_test; 
+
+
+-- Productions Database
+
+-- Drop if table Exists
+DROP DATABASE IF EXISTS maintenance_management;
+-- Create DataBases
+CREATE DATABASE maintenance_management; 
+
 
 -- Go and take data tables in folder: 
 

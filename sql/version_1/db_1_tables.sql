@@ -36,7 +36,7 @@ CREATE TABLE users (
 -- 3. Maintenance Types
 CREATE TABLE maintenance_types (
   id VARCHAR(50) PRIMARY KEY,
-  code VARCHAR(10) UNIQUE NOT NULL CHECK (code IN ('PM', 'CM', 'PdM')),
+  code VARCHAR(10) NOT NULL CHECK (code IN ('PM', 'CM', 'PdM')),
   name VARCHAR(100) NOT NULL,
   frequency_days INTEGER,
   description TEXT
