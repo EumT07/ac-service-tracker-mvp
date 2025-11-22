@@ -1,0 +1,18 @@
+services:
+  database:
+    image: postgres:17
+    container_name: maintenance_db_docker
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "${PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./sql/version_1:/docker-entrypoint-initdb.d
+
+volumes:
+  postgres_data:
+    driver: local
