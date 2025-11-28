@@ -229,13 +229,71 @@ GROUP BY u.id
 HAVING SUM(mo.labor_hours) > 3;
 
 --Question: Find the maintenance orders that were created from an inspection (i.e., where the inspection was "Converted to Maintenance").
+-- Response for the moment with test data I can not able to find aany record that maches the criteria.
 
 --Question: Which clients (full name) have not had any maintenance orders? (Use a subquery or a LEFT JOIN with a WHERE IS NULL filter).
+SELECT
+    c.id,
+    CONCAT(c.first_name, ' ', c.last_name) AS Client
+FROM clients AS c
+LEFT JOIN maintenance_orders AS mo
+ON c.id = mo.client_id
+WHERE mo.id IS NULL;
 
 --Question: Calculate the total labor cost (labor_cost) and total parts cost (parts_cost) per month and year, based on the completion date of the orders.
+SELECT
+    EXTRACT(YEAR FROM completed_date) AS year,
+    EXTRACT(MONTH FROM completed_date) AS month,
+    SUM(labor_cost) AS total_labor_cost,
+    SUM(parts_cost) AS total_parts_cost
+FROM maintenance_orders
+WHERE completed_date IS NOT NULL
+GROUP BY year, month
+-- HAVING SUM(labor_cost) > 50
+ORDER BY month, year DESC;
+
+
 --Question: Show the equipment that has the nearest upcoming warranty expiration date (warranty_expiration) that has not yet expired.
+SELECT
+    *
+FROM client_equipment
+WHERE warranty_expiration > CURRENT_DATE
+
 --Question: Find the maintenance order with the highest total_cost. Include the client's name and the associated technician's name in the result.
+SELECT 
+    mo.id,
+    CONCAT(c.first_name, ' ', c.last_name) AS Client,
+    CONCAT(u.first_name, ' ', u.last_name) AS Technician,
+    mo.status,
+    mo.total_cost,
+    mo.technician_notes
+FROM maintenance_orders AS mo
+INNER JOIN clients AS c
+ON mo.client_id = c.id
+INNER JOIN users AS u
+ON mo.user_id = u.id
+ORDER BY total_cost DESC
+LIMIT 1
+
 --Question: For each 'Commercial' client, calculate how many pieces of equipment they have in each status (status in client_equipment).
+WITH commercial_clients AS (
+    SELECT 
+        id,
+        CONCAT(first_name, ' ', last_name) AS Client
+    FROM clients
+    WHERE client_type = 'Commercial'
+)
+
+SELECT 
+    cc.Client,
+    ce.status
+FROM client_equipment AS ce
+LEFT JOIN commercial_clients AS cc
+ON ce.client_id = cc.id
+WHERE cc.Client IS NOT NULL
+GROUP BY cc.Client, ce.status
+ORDER BY cc.Client;
+
 --Question: Create a "Maintenance History" for a specific piece of equipment (choose an equipment_id). The query should combine information from the maintenance order, maintenance type, technician, costs, and any found failures into a single, clear view.
 --Question: Identify the most efficient technicians. Calculate the average difference between the estimated repair hours for a failure (failure_types.estimated_repair_hours) and the actual hours the technician took (equipment_failures.repair_hours_actual) for the orders they completed. A positive value means they were faster than estimated.
 --Question: Find "recurring" clients. List the clients who have had more than 3 corrective maintenance orders (maintenance_types.code = 'CM') in the last 6 months.
