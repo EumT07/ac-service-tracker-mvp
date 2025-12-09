@@ -1,0 +1,107 @@
+[
+    {
+        "id": "MT-001",
+        "code": "PM",
+        "name": "Air Filter Replacement",
+        "frequency_days": 30,
+        "description": "Replace or clean air filters to ensure proper airflow, improve indoor air quality, and maintain system efficiency."
+    },
+    {
+        "id": "MT-002",
+        "code": "PM",
+        "name": "Coil Cleaning",
+        "frequency_days": 90,
+        "description": "Clean evaporator and condenser coils to remove dirt and debris, ensuring optimal heat transfer and energy efficiency."
+    },
+    {
+        "id": "MT-003",
+        "code": "PM",
+        "name": "Lubrication of Moving Parts",
+        "frequency_days": 180,
+        "description": "Lubricate bearings and other moving parts in motors and fans to reduce friction, prevent wear, and extend equipment life."
+    },
+    {
+        "id": "MT-004",
+        "code": "PM",
+        "name": "Thermostat Calibration",
+        "frequency_days": 365,
+        "description": "Calibrate thermostat settings to ensure accurate temperature control, optimize energy usage, and prevent system overcycling."
+    },
+    {
+        "id": "MT-005",
+        "code": "PM",
+        "name": "Drain Line Cleaning",
+        "frequency_days": 60,
+        "description": "Flush and clean condensate drain lines to prevent clogs, algae growth, and potential water damage."
+    },
+    {
+        "id": "MT-006",
+        "code": "CM",
+        "name": "Compressor Repair",
+        "frequency_days": null,
+        "description": "Diagnose and repair compressor failures, including replacing faulty components such as valves or capacitors."
+    },
+    {
+        "id": "MT-007",
+        "code": "CM",
+        "name": "Refrigerant Leak Repair",
+        "frequency_days": null,
+        "description": "Locate and seal refrigerant leaks using detectors, then recharge the system to specified levels for proper cooling."
+    },
+    {
+        "id": "MT-008",
+        "code": "CM",
+        "name": "Blower Motor Replacement",
+        "frequency_days": null,
+        "description": "Replace a failed blower motor to restore air circulation, including wiring and mounting adjustments as needed."
+    },
+    {
+        "id": "MT-009",
+        "code": "CM",
+        "name": "Electrical Control Repair",
+        "frequency_days": null,
+        "description": "Repair or replace damaged electrical controls, such as relays, contactors, or circuit boards, to ensure safe operation."
+    },
+    {
+        "id": "MT-010",
+        "code": "CM",
+        "name": "Ductwork Leak Repair",
+        "frequency_days": null,
+        "description": "Seal leaks in ductwork using mastic or tape to improve system efficiency, reduce energy loss, and enhance indoor air quality."
+    },
+    {
+        "id": "MT-011",
+        "code": "PdM",
+        "name": "Vibration Analysis",
+        "frequency_days": 30,
+        "description": "Monitor vibration levels in motors and fans using sensors to detect imbalances or bearing wear for early intervention."
+    },
+    {
+        "id": "MT-012",
+        "code": "PdM",
+        "name": "Infrared Thermography",
+        "frequency_days": 90,
+        "description": "Use thermal imaging cameras to identify hotspots in electrical components and insulation, indicating potential failures."
+    },
+    {
+        "id": "MT-013",
+        "code": "PdM",
+        "name": "Oil Analysis",
+        "frequency_days": 180,
+        "description": "Analyze oil samples from compressors for contaminants and wear particles to predict mechanical failures and schedule repairs."
+    },
+    {
+        "id": "MT-014",
+        "code": "PdM",
+        "name": "Performance Data Monitoring",
+        "frequency_days": 7,
+        "description": "Continuously monitor system parameters like temperature, pressure, and airflow to detect deviations and optimize performance."
+    },
+    {
+        "id": "MT-015",
+        "code": "PdM",
+        "name": "Acoustic Emission Testing",
+        "frequency_days": 60,
+        "description": "Use sound analysis equipment to detect abnormal noises from components, indicating early signs of wear or failure."
+    }
+]

@@ -1,0 +1,182 @@
+[
+    {
+        "id": "FT-001",
+        "category": "Electrical",
+        "name": "Capacitor Failure",
+        "severity": "Medium",
+        "estimated_repair_hours": 2,
+        "common_causes": "Age, overheating, power surges",
+        "is_active": true,
+        "created_at": "2022-02-01 09:00:00"
+    },
+    {
+        "id": "FT-002",
+        "category": "Electrical",
+        "name": "Circuit Board Malfunction",
+        "severity": "High",
+        "estimated_repair_hours": 4,
+        "common_causes": "Water damage, electrical shorts, component failure",
+        "is_active": true,
+        "created_at": "2022-04-10 11:15:00"
+    },
+    {
+        "id": "FT-003",
+        "category": "Electrical",
+        "name": "Motor Burnout",
+        "severity": "High",
+        "estimated_repair_hours": 3,
+        "common_causes": "Overheating, lack of lubrication, voltage issues",
+        "is_active": false,
+        "created_at": "2022-06-05 13:20:00"
+    },
+    {
+        "id": "FT-004",
+        "category": "Mechanical",
+        "name": "Bearing Failure",
+        "severity": "Medium",
+        "estimated_repair_hours": 3,
+        "common_causes": "Wear and tear, lack of lubrication, contamination",
+        "is_active": true,
+        "created_at": "2022-03-15 08:30:00"
+    },
+    {
+        "id": "FT-005",
+        "category": "Mechanical",
+        "name": "Belt Slippage or Breakage",
+        "severity": "Low",
+        "estimated_repair_hours": 2,
+        "common_causes": "Misalignment, wear, tension issues",
+        "is_active": true,
+        "created_at": "2022-07-22 16:00:00"
+    },
+    {
+        "id": "FT-006",
+        "category": "Refrigeration",
+        "name": "Refrigerant Leak",
+        "severity": "High",
+        "estimated_repair_hours": 4,
+        "common_causes": "Corrosion, vibration, poor installation",
+        "is_active": true,
+        "created_at": "2022-05-12 10:45:00"
+    },
+    {
+        "id": "FT-007",
+        "category": "Refrigeration",
+        "name": "Compressor Failure",
+        "severity": "Critical",
+        "estimated_repair_hours": 8,
+        "common_causes": "Electrical overload, refrigerant issues, mechanical wear",
+        "is_active": true,
+        "created_at": "2022-08-30 12:00:00"
+    },
+    {
+        "id": "FT-008",
+        "category": "Refrigeration",
+        "name": "Evaporator Coil Freeze-up",
+        "severity": "Medium",
+        "estimated_repair_hours": 3,
+        "common_causes": "Low airflow, low refrigerant, dirty coils",
+        "is_active": false,
+        "created_at": "2022-09-18 14:30:00"
+    },
+    {
+        "id": "FT-009",
+        "category": "Airflow",
+        "name": "Dirty Air Filter Restriction",
+        "severity": "Low",
+        "estimated_repair_hours": 1,
+        "common_causes": "Neglect, high pollen environments",
+        "is_active": true,
+        "created_at": "2022-01-25 07:50:00"
+    },
+    {
+        "id": "FT-010",
+        "category": "Airflow",
+        "name": "Ductwork Leakage",
+        "severity": "Medium",
+        "estimated_repair_hours": 5,
+        "common_causes": "Poor installation, age, physical damage",
+        "is_active": true,
+        "created_at": "2022-10-05 09:10:00"
+    },
+    {
+        "id": "FT-011",
+        "category": "Control System",
+        "name": "Thermostat Calibration Error",
+        "severity": "Low",
+        "estimated_repair_hours": 1,
+        "common_causes": "Battery failure, dust accumulation, software glitch",
+        "is_active": true,
+        "created_at": "2022-11-11 15:20:00"
+    },
+    {
+        "id": "FT-012",
+        "category": "Control System",
+        "name": "Sensor Malfunction",
+        "severity": "Medium",
+        "estimated_repair_hours": 2,
+        "common_causes": "Corrosion, wiring issues, age",
+        "is_active": false,
+        "created_at": "2022-12-03 11:05:00"
+    },
+    {
+        "id": "FT-013",
+        "category": "Drainage",
+        "name": "Clogged Condensate Drain Line",
+        "severity": "Medium",
+        "estimated_repair_hours": 2,
+        "common_causes": "Algae growth, debris, improper slope",
+        "is_active": true,
+        "created_at": "2022-02-28 13:40:00"
+    },
+    {
+        "id": "FT-014",
+        "category": "Drainage",
+        "name": "Condensate Pump Failure",
+        "severity": "Low",
+        "estimated_repair_hours": 2,
+        "common_causes": "Motor burnout, float switch issue, clogging",
+        "is_active": false,
+        "created_at": "2022-04-25 17:00:00"
+    },
+    {
+        "id": "FT-015",
+        "category": "Noise/Vibration",
+        "name": "Excessive Fan Noise",
+        "severity": "Low",
+        "estimated_repair_hours": 2,
+        "common_causes": "Bearing wear, blade imbalance, loose components",
+        "is_active": true,
+        "created_at": "2022-06-30 10:00:00"
+    },
+    {
+        "id": "FT-016",
+        "category": "Noise/Vibration",
+        "name": "Compressor Vibration",
+        "severity": "Medium",
+        "estimated_repair_hours": 3,
+        "common_causes": "Mounting bolts loose, internal damage, refrigerant slugging",
+        "is_active": true,
+        "created_at": "2022-03-10 08:15:00"
+    },
+    {
+        "id": "FT-017",
+        "category": "Other",
+        "name": "Improper System Sizing",
+        "severity": "High",
+        "estimated_repair_hours": 8,
+        "common_causes": "Incorrect load calculation, contractor error",
+        "is_active": true,
+        "created_at": "2022-07-14 14:50:00"
+    },
+    {
+        "id": "FT-018",
+        "category": "Other",
+        "name": "Seasonal Efficiency Drop",
+        "severity": "Low",
+        "estimated_repair_hours": 1,
+        "common_causes": "Dirty coils, blocked vents, thermostat settings",
+        "is_active": true,
+        "created_at": "2022-05-08 12:30:00"
+    }
+]
