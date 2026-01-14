@@ -26,7 +26,7 @@ class ClientEquipment(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"Client: {self.client} | Model : {self.model} - BTU: {self.capacity_btu} - Status: {self.status}"
+        return f"{self.client}"
 
     class Meta:
         managed = False
@@ -45,7 +45,7 @@ class Clients(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"Client: {self.first_name} {self.last_name} | {self.client_type}"
+        return f"{self.first_name} {self.last_name}"
 
     class Meta:
         managed = False
@@ -82,7 +82,7 @@ class FailureTypes(models.Model):
     created_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"Name: {self.name} | Category: {self.category} | Severity: {self.severity}"
+        return f"{self.category}"
 
     class Meta:
         managed = False
@@ -107,7 +107,7 @@ class Inspections(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"Client: {self.client} | Equipment: {self.equipment} | Technician: {self.user}"
+        return f"Technician: {self.user}"
 
     class Meta:
         managed = False
@@ -135,7 +135,7 @@ class MaintenanceOrders(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.type} : {self.client} | Technician: {self.user}"
+        return f"{self.type}"
 
     class Meta:
         managed = False
@@ -150,7 +150,7 @@ class MaintenanceTypes(models.Model):
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.name} {self.description} | {self.code}"
+        return f"{self.name} | {self.code}"
 
     class Meta:
         managed = False
@@ -173,7 +173,7 @@ class Users(models.Model):
     updated_at = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} : ({self.email}) | ({self.role})"
+        return f"{self.first_name} {self.last_name}"
 
     class Meta:
         managed = False
