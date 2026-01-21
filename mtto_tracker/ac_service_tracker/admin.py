@@ -57,12 +57,13 @@ class MaintenanceOrdersAdmin(admin.ModelAdmin):
     # total_cost is readonly  (PostgreSQL)
     readonly_fields = ('total_cost',)
     search_fields = ('client__first_name', 'equipment__equipment_name', 'status')
-    list_filter = ('status', 'user', 'type', 'scheduled_date')
+    list_filter = ('status', 'user', 'type__name', 'scheduled_date')
 
 @admin.register(MaintenanceTypes)
 class MaintenanceTypesAdmin(admin.ModelAdmin):
-    list_display = ('code', 'name', 'frequency_days')
+    list_display = ('code', 'name', 'frequency_days', 'description')
     search_fields = ('code', 'name')
+    list_filter = ('name',)
 
 @admin.register(Inspections)
 class InspectionsAdmin(admin.ModelAdmin):

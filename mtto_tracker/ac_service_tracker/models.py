@@ -7,6 +7,8 @@
 # Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
 import uuid
+from datetime import date
+from django.core.validators import MinValueValidator
 
 # Master Tables
 class EquipmentType(models.Model):
@@ -37,7 +39,7 @@ class MaintenanceTypes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     code = models.CharField(max_length=10, unique=True)
     name = models.CharField(max_length=100)
-    frequency_days = models.IntegerField(blank=True, null=True)
+    frequency_days = models.IntegerField(blank=True, null=True, validators=[MinValueValidator(1)])
     description = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -53,17 +55,21 @@ class Users(models.Model):
         ('technician', 'Technician'),
         ('operator', 'Operator'),
     ]
+    GENDER_CHOICES = [
+        ('Male', 'Male'),
+        ('Female', 'Female')
+    ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
     email = models.EmailField(unique=True, max_length=255)
     phone = models.CharField(unique=True, max_length=50)
-    gender = models.CharField(max_length=10, blank=True, null=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
     address = models.TextField(blank=True, null=True)
-    password = models.CharField(max_length=255) # Hash de contraseña
-    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='technician')
-    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) # type: ignore
+    password = models.CharField(max_length=255) 
+    role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='technician')
+    hourly_rate = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, validators=[MinValueValidator(0)]) # type: ignore
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -79,11 +85,11 @@ class Clients(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
-    email = models.EmailField(unique=True, max_length=255, blank=True, null=True)
-    gender = models.CharField(max_length=10, blank=True, null=True)
+    email = models.EmailField(unique=True, max_length=255)
+    gender = models.CharField(max_length=50, blank=True, null=True)
     phone = models.CharField(unique=True, max_length=50)
     address = models.TextField(blank=True, null=True)
-    client_type = models.CharField(max_length=20, default='Residential')
+    client_type = models.CharField(max_length=50, default='Residential')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -98,14 +104,12 @@ class ClientEquipment(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Clients, on_delete=models.CASCADE)
     equipment_name = models.CharField(max_length=100)
-    brand = models.ForeignKey(EquipmentBrand, on_delete=models.PROTECT)
-    equipment_type = models.ForeignKey(EquipmentType, on_delete=models.PROTECT)
-    model = models.CharField(max_length=100)
+    brand = models.ForeignKey(EquipmentBrand, on_delete=models.RESTRICT)
+    equipment_type = models.ForeignKey(EquipmentType, on_delete=models.RESTRICT)
+    model = models.CharField(max_length=100, blank=True, null=True)
     serial_number = models.CharField(max_length=100, blank=True, null=True)
-    capacity_btu = models.IntegerField(blank=True, null=True)
-    location = models.CharField(max_length=100, blank=True, null=True)
-    installation_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=50, default='Operational')
+    created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         managed = False
@@ -115,8 +119,10 @@ class FailureTypes(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     category = models.ForeignKey(FailureCategory, on_delete=models.PROTECT)
     name = models.CharField(unique=True, max_length=255)
-    severity = models.CharField(max_length=20)
-    estimated_repair_hours = models.DecimalField(max_digits=5, decimal_places=2, default=1.0) #type: ignore
+    severity = models.CharField(max_length=50)
+    estimated_repair_hours = models.DecimalField(max_digits=5, decimal_places=2, default=1.0, validators=[MinValueValidator(0.01)]) #type: ignore
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
         managed = False
@@ -126,14 +132,21 @@ class MaintenanceOrders(models.Model):
     STATUS_CHOICES = [('scheduled', 'Scheduled'), ('in_progress', 'In Progress'), ('completed', 'Completed'), ('cancelled', 'Cancelled')]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Clients, on_delete=models.CASCADE)
-    user = models.ForeignKey('Users', on_delete=models.PROTECT)
+    user = models.ForeignKey('Users', on_delete=models.RESTRICT)
     equipment = models.ForeignKey(ClientEquipment, on_delete=models.CASCADE)
-    type = models.ForeignKey('MaintenanceTypes', on_delete=models.PROTECT)
+    type = models.ForeignKey('MaintenanceTypes', on_delete=models.RESTRICT)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
     scheduled_date = models.DateField()
-    labor_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0) # type: ignore
-    parts_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0) # type: ignore
+    labor_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)]) # type: ignore
+    parts_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0, validators=[MinValueValidator(0)]) # type: ignore
     total_cost = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        self.total_cost = self.labor_cost + self.parts_cost
+        super().save(*args, **kwargs)
+        
 
     class Meta:
         managed = False
@@ -147,13 +160,12 @@ class EquipmentFailures(models.Model):
         null=True, 
         blank=True
     )
-    failure_type = models.ForeignKey(FailureTypes, on_delete=models.PROTECT)
+    failure_type = models.ForeignKey(FailureTypes, on_delete=models.RESTRICT)
     equipment = models.ForeignKey(ClientEquipment, on_delete=models.CASCADE)
-    detected_date = models.DateField(auto_now_add=True)
+    detected_date = models.DateField(default=date.today)
     resolved_date = models.DateField(blank=True, null=True)
     severity_actual = models.CharField(max_length=50, blank=True, null=True)
     repair_notes = models.TextField(blank=True, null=True)
-    repair_hours_actual = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -165,23 +177,16 @@ class EquipmentFailures(models.Model):
 
 class Inspections(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
-        ('converted', 'Converted to Order'),
+        ('Pending', 'Pending'),
+        ('Converted to Maintenance', 'Converted to Maintenance'),
+        ('Rejected', 'Rejected'),
     ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Clients, on_delete=models.CASCADE)
     equipment = models.ForeignKey(ClientEquipment, on_delete=models.CASCADE)
-    user = models.ForeignKey(Users, on_delete=models.PROTECT)
-    inspection_date = models.DateField(auto_now_add=True)
-    pressure_suction = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    temp_supply = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    temp_return = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    amps_reading = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    general_notes = models.TextField(blank=True, null=True)
-    findings_summary = models.TextField(blank=True, null=True)
+    user = models.ForeignKey(Users, on_delete=models.RESTRICT)
+    inspection_date = models.DateField(default=date.today)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
 
     converted_to_maintenance_order = models.OneToOneField(
@@ -193,7 +198,6 @@ class Inspections(models.Model):
     )
     
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Inspección {self.id} - {self.equipment}"
