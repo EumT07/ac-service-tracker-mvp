@@ -1,22 +1,7 @@
 -- Using UUID 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 1. Clients
-CREATE TABLE clients (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  first_name VARCHAR(50),
-  last_name VARCHAR(50),
-  email VARCHAR(255) UNIQUE,
-  gender VARCHAR(50) CHECK (gender IN ('Male', 'Female')),
-  phone VARCHAR(50) UNIQUE NOT NULL,
-  address TEXT,
-  client_type VARCHAR(50) DEFAULT 'Residential' CHECK (client_type IN ('Residential', 'Commercial')),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 2. Users
-CREATE TABLE users (
+CREATE TABLE employees (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   first_name VARCHAR(50) NOT NULL,
   last_name VARCHAR(50) NOT NULL,
@@ -25,100 +10,170 @@ CREATE TABLE users (
   gender VARCHAR(10) CHECK (gender IN ('Male', 'Female')),
   address TEXT,
   password VARCHAR(255) NOT NULL,
-  role VARCHAR(50) DEFAULT 'technician' CHECK (role IN ('admin', 'technician', 'operator')),
-  hourly_rate DECIMAL(10,2) DEFAULT 0.00 CHECK (hourly_rate >= 0),
+  role VARCHAR(50) DEFAULT 'Technician' CHECK (role IN ('Admin', 'Technician', 'Operator', 'Trainer')),
+  employee_hourly_rate DECIMAL(10,2) DEFAULT 0.00 CHECK (employee_hourly_rate >= 0),
+  cost_hourly_rate DECIMAL(10,2) GENERATED ALWAYS AS ( (employee_hourly_rate * 0.5) + employee_hourly_rate) STORED,
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. Maintenance Types
-CREATE TABLE maintenance_types (
+CREATE TABLE clients (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  code VARCHAR(10) NOT NULL,
-  name VARCHAR(100) NOT NULL,
-  frequency_days INTEGER CHECK (frequency_days > 0),
-  description TEXT
+  first_name VARCHAR(50),
+  last_name VARCHAR(50),
+  email VARCHAR(255) UNIQUE NOT NULL,
+  gender VARCHAR(50) CHECK (gender IN ('Male', 'Female')),
+  phone VARCHAR(50) UNIQUE NOT NULL,
+  address TEXT,
+  client_type VARCHAR(50) DEFAULT 'Residential' CHECK (client_type IN ('Residential', 'Commercial')),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 4. Equipment Master Tables
-CREATE TABLE equipment_types (
+CREATE TABLE employee_invoices (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(100) NOT NULL UNIQUE
-);
-
-CREATE TABLE equipment_brands (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(100) NOT NULL UNIQUE
-);
-
--- 5. Client Equipment (ESTA TABLA FALTABA Y ES NECESARIA PARA LAS ÓRDENES)
-CREATE TABLE client_equipment (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
-    equipment_name VARCHAR(100) NOT NULL,
-    brand_id UUID NOT NULL REFERENCES equipment_brands(id) ON DELETE RESTRICT,
-    equipment_type_id UUID NOT NULL REFERENCES equipment_types(id) ON DELETE RESTRICT,
-    model VARCHAR(100),
-    serial_number VARCHAR(100),
-    status VARCHAR(50) DEFAULT 'Operational',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 6. Failure Categories and Types
-CREATE TABLE failure_categories (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    name VARCHAR(100) NOT NULL UNIQUE
-);
-
-CREATE TABLE failure_types (
-  id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  category_id UUID NOT NULL REFERENCES failure_categories(id) ON DELETE RESTRICT,
-  name VARCHAR(255) NOT NULL UNIQUE,
-  severity VARCHAR(50) CHECK (severity IN ('Low', 'Medium', 'High', 'Critical')),
-  estimated_repair_hours DECIMAL(5,2) DEFAULT 1.0 CHECK (estimated_repair_hours > 0),
-  is_active BOOLEAN DEFAULT TRUE,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
--- 7. Maintenance Orders
-CREATE TABLE maintenance_orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
-    user_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-    equipment_id UUID NOT NULL REFERENCES client_equipment(id) ON DELETE CASCADE,
-    type_id UUID NOT NULL REFERENCES maintenance_types(id) ON DELETE RESTRICT,
-    status VARCHAR(20) NOT NULL DEFAULT 'scheduled' 
-        CHECK (status IN ('scheduled', 'in_progress', 'completed', 'cancelled')),
-    scheduled_date DATE NOT NULL,
-    labor_cost DECIMAL(10,2) DEFAULT 0 CHECK (labor_cost >= 0),
-    parts_cost DECIMAL(10,2) DEFAULT 0 CHECK (parts_cost >= 0),
-    total_cost DECIMAL(10,2) GENERATED ALWAYS AS (labor_cost + parts_cost) STORED,
+    employee_id UUID NOT NULL REFERENCES employees(id) ON DELETE RESTRICT,
+    period_start DATE NOT NULL,
+    period_end DATE NOT NULL,
+    total_hours_worked DECIMAL(10,2) DEFAULT 0.00,
+    employee_hourly_rate DECIMAL(10,2) NOT NULL,
+    bonuses DECIMAL(10,2) DEFAULT 0.00,
+    reimbursements DECIMAL(10,2) DEFAULT 0.00,
+    deductions DECIMAL(10,2) DEFAULT 0.00,
+    total_payment DECIMAL(10,2) GENERATED ALWAYS AS (
+        (total_hours_worked * employee_hourly_rate) + bonuses + reimbursements - deductions
+    ) STORED,
+    payment_date DATE,
+    payment_reference VARCHAR(100),
+    status VARCHAR(20) DEFAULT 'Draft' CHECK (status IN ('Draft', 'Approved', 'Paid', 'Disputed', 'Cancelled')),
+    notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 8. Equipment Failures
-CREATE TABLE equipment_failures (
+CREATE TABLE client_equipment (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
+    brand VARCHAR(100),
+    equipment_type VARCHAR(100),
+    model VARCHAR(100),
+    serial_number VARCHAR(100),
+    location varchar(255),
+    installation_date DATE,
+    warranty_expiration DATE,
+    capacity_btu INTEGER CHECK (capacity_btu > 0),
+    status VARCHAR(50) DEFAULT 'Operational' CHECK (status IN (
+    'Operational', 'Requires Repair', 'Out of Service', 'Under Maintenance'
+  )),
+    equipment_condition VARCHAR(50) DEFAULT 'New' CHECK (equipment_condition IN ('New', 'Refurbished', 'Used','For Parts')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE services (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  maintenance_order_id UUID REFERENCES maintenance_orders(id) ON DELETE SET NULL,
-  failure_type_id UUID NOT NULL REFERENCES failure_types(id) ON DELETE RESTRICT,
-  equipment_id UUID NOT NULL REFERENCES client_equipment(id) ON DELETE CASCADE,
-  detected_date DATE NOT NULL DEFAULT CURRENT_DATE,
-  resolved_date DATE,
-  severity_actual VARCHAR(50) CHECK (severity_actual IN ('Low', 'Medium', 'High', 'Critical')),
-  repair_notes TEXT,
+  client_id UUID  REFERENCES clients(id) ON DELETE SET NULL,
+  client_equipment_id UUID  REFERENCES client_equipment(id) ON DELETE SET NULL,
+  lead_technician_id UUID  REFERENCES employees(id) ON DELETE SET NULL,
+  service_type VARCHAR(50) DEFAULT 'Inspection' CHECK (service_type IN ('Inspection','Installation' ,'Maintenance')),
+  pressure_suction DECIMAL(10,2),
+  temperature_in DECIMAL(10,2),
+  temperature_out DECIMAL(10,2),
+  amps_reading DECIMAL(10,2),
+  voltage_reading DECIMAL(10,2),
+  service_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  status VARCHAR(50) DEFAULT 'Pending' CHECK (status IN ('Pending', 'To Maintenance','To Service', 'Rejected')),
+  notes TEXT,
+  cost DECIMAL(10,2) DEFAULT 40.00 CHECK (cost >= 40.00),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- 9. Inspections
-CREATE TABLE inspections (
+CREATE TABLE maintenance_orders (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    services_id UUID UNIQUE REFERENCES services(id) ON DELETE RESTRICT,
+    client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
+    lead_technician_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+    client_equipment_id UUID REFERENCES client_equipment(id) ON DELETE SET NULL,
+    code VARCHAR(10) NOT NULL DEFAULT 'PM' CHECK (code IN ('PM', 'CM', 'PdM')),
+    scheduled_date DATE NOT NULL,
+    completed_date DATE,
+    next_maintenance_date DATE,
+    total_parts_cost DECIMAL(10,2) DEFAULT 0.00,
+    total_labor_cost DECIMAL(10,2) DEFAULT 0.00,
+    total_order_cost DECIMAL(10,2) GENERATED ALWAYS AS (total_parts_cost + total_labor_cost) STORED,
+    status VARCHAR(20) NOT NULL DEFAULT 'Scheduled' CHECK (status IN ('Scheduled', 'In Progress', 'Completed', 'Cancelled')),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE order_parts_used (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    maintenance_order_id UUID NOT NULL REFERENCES maintenance_orders(id) ON DELETE CASCADE,
+    part_name VARCHAR(150) NOT NULL,
+    quantity DECIMAL(10,2) NOT NULL DEFAULT 1.00,
+    unit_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    line_total DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+CREATE TABLE order_labor_log (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    maintenance_order_id UUID NOT NULL REFERENCES maintenance_orders(id) ON DELETE CASCADE,
+    technician_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+    employee_invoice_id UUID REFERENCES employee_invoices(id) ON DELETE SET NULL,
+    hours_worked DECIMAL(10,2), 
+    hourly_rate_at_time DECIMAL(10,2) NOT NULL, -- Price at the time of labor
+    labor_description TEXT,
+    line_total DECIMAL(10,2) GENERATED ALWAYS AS (hours_worked * hourly_rate_at_time) STORED,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE equipment_failures (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  client_id UUID NOT NULL REFERENCES clients(id) ON DELETE CASCADE,
-  equipment_id UUID NOT NULL REFERENCES client_equipment(id) ON DELETE CASCADE,
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE RESTRICT,
-  inspection_date DATE NOT NULL DEFAULT CURRENT_DATE,
-  status VARCHAR(50) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Converted to Maintenance', 'Rejected')),
-  converted_to_maintenance_order_id UUID UNIQUE REFERENCES maintenance_orders(id) ON DELETE SET NULL,
+  maintenance_order_id UUID REFERENCES maintenance_orders(id) ON DELETE SET NULL,
+  client_equipment_id UUID NOT NULL REFERENCES client_equipment(id) ON DELETE CASCADE,
+  failure_category VARCHAR(100),
+  failure_description TEXT,
+  detected_date DATE NOT NULL DEFAULT CURRENT_DATE,
+  resolved_date DATE,
+  severity VARCHAR(50) CHECK (severity IN ('Low', 'Medium', 'High', 'Critical')),
+  is_active BOOLEAN DEFAULT TRUE,
+  notes TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE leads (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    employee_id UUID REFERENCES employees(id) ON DELETE SET NULL,
+    first_name VARCHAR(50),
+    last_name VARCHAR(50),
+    gender VARCHAR(50) CHECK (gender IN ('Male', 'Female')),
+    email VARCHAR(255) UNIQUE,
+    phone VARCHAR(50) UNIQUE,
+    lead_type VARCHAR(20) DEFAULT 'Residential' CHECK (lead_type IN ('Residential', 'Commercial')),
+    service_type VARCHAR(50) CHECK (service_type IN ('Inspection','Installation' ,'Maintenance')),
+    notes TEXT,
+    status VARCHAR(50) DEFAULT 'New' CHECK (status IN ('New','Contacted', 'Follow-up', 'Scheduled', 'Lost')),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE bills (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    maintenance_order_id UUID UNIQUE REFERENCES maintenance_orders(id) ON DELETE SET NULL,
+    service_id UUID UNIQUE REFERENCES services(id) ON DELETE SET NULL,
+    client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
+    bill_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    total_labor_cost DECIMAL(10,2) DEFAULT 0.00,
+    total_parts_cost DECIMAL(10,2) DEFAULT 0.00,
+    service_fee DECIMAL(10,2) DEFAULT 0.00,
+    total_amount DECIMAL(10,2) GENERATED ALWAYS AS (total_labor_cost + total_parts_cost + service_fee) STORED,
+    status VARCHAR(50) DEFAULT 'Unpaid' CHECK (status IN ('Unpaid', 'Paid', 'Overdue')),
+    payment_method VARCHAR(50) CHECK (payment_method IN ('Cash', 'Transfer', 'Credit Card','Bank Transfer','Other')),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

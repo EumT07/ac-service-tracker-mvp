@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -123,3 +124,38 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Tracker",
+    "site_header": "AC Maintenance Tracker",
+    "site_brand": "AC Tracker Admin",
+    "welcome_sign": "Welcome to AC Service Tracker Admin",
+    "copyright": "AC Tracker 2024",
+    
+    #(Font Awesome)
+    "icons": {
+        "auth": "fas fa-users-cog",
+        "auth.user": "fas fa-user",
+        "auth.Group": "fas fa-users",
+        "ac_service_tracker.Clients": "fas fa-address-book",
+        "ac_service_tracker.MaintenanceOrders": "fas fa-tools",
+        "ac_service_tracker.ClientEquipment": "fas fa-snowflake",
+        "ac_service_tracker.Services": "fas fa-clipboard-check",
+        "ac_service_tracker.Employees": "fas fa-users",
+        "ac_service_tracker.bills": "fas fa-file-invoice",
+        "ac_service_tracker.leads": "fas fa-headset",
+        "ac_service_tracker.EmployeeInvoices": "fas fa-file-invoice-dollar",
+        "ac_service_tracker.MaintenanceOrders": "fas fa-file-invoice-dollar", 
+        "ac_service_tracker.EquipmentFailures": "fas fa-car-crash",
+        "ac_service_tracker.OrderPartsUsed": "fas fa-cog",
+        "ac_service_tracker.OrderLaborLog": "fas fa-user-clock",
+    },
+    
+    
+    "show_sidebar": True,
+    "navigation_expanded": True,
+    "order_with_respect_to": ["maintenance", "auth"],
+    # "show_ui_builder": True,
+
+
+}
