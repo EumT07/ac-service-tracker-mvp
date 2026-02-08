@@ -9,21 +9,11 @@ from django.db import models
 import uuid
 from datetime import date
 from django.core.validators import MinValueValidator
+from choices.choices import ROLE_CHOICES, GENDER_CHOICES, CLIENT_TYPE_CHOICES, EMPLOYEE_STATUS_CHOICES, CLIENT_STATUS_CHOICES, CLIENT_CONDITIONS_CHOICES, EQUIPMENT_BTU_CHOICES, BRANDS_CHOICES, EQUIPMENT_CHOICES,SERVICE_STATUS_CHOICES, SERVICE_TYPE_CHOICES, MAINTENANCE_STATUS_CHOICES, MAINTENANCE_CODE_CHOICES, SEVERITY_CHOICES, CATEGORY_CHOICES, LEADS_STATUS_CHOICES, LEADS_SERVICES_CHOICES, PAYMENT_CHOICES, PAYMENT_METHOD_CHOICES
 
 
 
 class Employees(models.Model):
-    ROLE_CHOICES = [
-        ('Admin', 'Admin'),
-        ('Technician', 'Technician'),
-        ('Operator', 'Operator'),
-        ('Trainer', 'Trainer')
-    ]
-    GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female')
-    ]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -46,16 +36,6 @@ class Employees(models.Model):
         db_table = 'employees'
 
 class Clients(models.Model):
-    CLIENT_TYPE_CHOICES = [
-        ('Residential', 'Residential'),
-        ('Commercial', 'Commercial')
-    ]
-
-    GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female')
-    ]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -75,13 +55,6 @@ class Clients(models.Model):
         db_table = 'clients'
 
 class EmployeeInvoices(models.Model):
-    STATUS_CHOICES = [
-        ('Draft', 'Draft'),
-        ('Approved', 'Approved'),
-        ('Paid', 'Paid'),
-        ('Disputed', 'Disputed'),
-        ('Cancelled', 'Cancelled')
-    ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     employee = models.ForeignKey(Employees, on_delete=models.RESTRICT, db_column='employee_id')
     period_start = models.DateField()
@@ -93,7 +66,7 @@ class EmployeeInvoices(models.Model):
     deductions = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)# type: ignore
     payment_date = models.DateField(null=True, blank=True)
     payment_reference = models.CharField(max_length=100, null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Draft')
+    status = models.CharField(max_length=20, choices=EMPLOYEE_STATUS_CHOICES, default='Draft')
     notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -103,65 +76,6 @@ class EmployeeInvoices(models.Model):
         db_table = 'employee_invoices'
 
 class ClientEquipment(models.Model):
-    STATUS_CHOICES = [
-        ('Operational', 'Operational'),
-        ('Requires Repair', 'Requires Repair'),
-        ('Under Maintenance', 'Under Maintenance'),
-        ('Out of Service', 'Out of Service'),
-    ]
-    CONDITIONS_CHOICES = [
-        ('New', 'New'),
-        ('Refurbished', 'Refurbished'),
-        ('Used', 'Used'),
-        ('For Parts', 'For Parts'),
-    ]
-    BTU_CHOICES = [
-        (9000, '9,000 BTU'),
-        (12000, '12,000 BTU'),
-        (18000, '18,000 BTU'),
-        (24000, '24,000 BTU'),
-        (30000, '30,000 BTU'),
-        (36000, '36,000 BTU'),
-        (48000, '48,000 BTU'),
-        (60000, '60,000 BTU'),
-    ]
-    BRANDS_CHOICES = [
-        ('Carrier', 'Carrier'),
-        ('Trane', 'Trane'),
-        ('York', 'York'),
-        ('Daikin', 'Daikin'),
-        ('Samsung', 'Samsung'),
-        ('LG', 'LG'),
-        ('McQuay', 'McQuay'),
-        ('Lennox', 'Lennox'),
-        ('Goodman', 'Goodman'),
-        ('Daewoo', 'Daewoo'),
-        ('Mitsubishi Electric', 'Mitsubishi Electric'),
-        ('Hitachi', 'Hitachi'),
-        ('Toshiba', 'Toshiba'),
-        ('Rheem', 'Rheem'),
-        ('Bryant', 'Bryant'),
-        ('Other', 'Other')
-    ]
-    EQUIPMENT_CHOICES = [
-        ('Split Wall Mounted', 'Split Wall Mounted'),
-        ('Multi-Split', 'Multi-Split'),
-        ('Chiller Air Cooled', 'Chiller Air Cooled'), 
-        ('Chiller Water Cooled', 'Chiller Water Cooled'),
-        ('Package Unit', 'Package Unit'),
-        ('Fan Coil Unit', 'Fan Coil Unit'),
-        ('Ducted System', 'Ducted System'),
-        ('Window Unit', 'Window Unit'),
-        ('Portable Unit', 'Portable Unit'),
-        ('Central AC System', 'Central AC System'),
-        ('Furnace', 'Furnace'),
-        ('Heat Pump', 'Heat Pump'),
-        ('Ventilation System', 'Ventilation System'),
-        ('Dehumidifier', 'Dehumidifier'),
-        ('Air Purifier', 'Air Purifier'),
-        ('VRF System', 'VRF System'),
-        ('Other', 'Other')
-    ]
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Clients, on_delete=models.CASCADE, db_column='client_id')
     brand = models.CharField(max_length=100,choices=BRANDS_CHOICES,blank=True, null=True)
@@ -171,9 +85,9 @@ class ClientEquipment(models.Model):
     location = models.CharField(max_length=255, blank=True, null=True)
     installation_date = models.DateField(blank=True, null=True)
     warranty_expiration = models.DateField(blank=True, null=True)
-    capacity_btu = models.PositiveIntegerField(blank=True, choices=BTU_CHOICES, null=True)
-    status = models.CharField(max_length=50,choices=STATUS_CHOICES, default='Operational')
-    equipment_condition = models.CharField(max_length=50, choices=CONDITIONS_CHOICES, default='New')
+    capacity_btu = models.PositiveIntegerField(blank=True, choices=EQUIPMENT_BTU_CHOICES, null=True)
+    status = models.CharField(max_length=50,choices=CLIENT_STATUS_CHOICES, default='Operational')
+    equipment_condition = models.CharField(max_length=50, choices=CLIENT_CONDITIONS_CHOICES, default='New')
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -184,30 +98,13 @@ class ClientEquipment(models.Model):
         db_table = 'client_equipment'
 
 class Services(models.Model):
-    STATUS_CHOICES = [
-        ('Pending', 'Pending'),
-        ('To Maintenance', 'To Maintenance'),
-        ('To Service', 'To Service'),
-        ('Rejected', 'Rejected'),
-    ]
-    SERVICE_CHOICES = [
-        ('Inspection','Inspection' ),
-        ('Installation' ,'Installation'),
-        ('Maintenance','Maintenance')
-    ]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     client = models.ForeignKey(Clients, on_delete=models.RESTRICT, db_column='client_id')
     client_equipment = models.ForeignKey(ClientEquipment, on_delete=models.RESTRICT, db_column='client_equipment_id')
     lead_technician = models.ForeignKey(Employees, on_delete=models.RESTRICT, db_column='lead_technician_id')
-    service_type = models.CharField(max_length=50, choices=SERVICE_CHOICES, default='Inspection')
-    pressure_suction = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    temperature_in = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    temperature_out = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    amps_reading = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    voltage_reading = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    service_type = models.CharField(max_length=50, choices=SERVICE_TYPE_CHOICES, default='Inspection')
     service_date = models.DateField(default=date.today)
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
+    status = models.CharField(max_length=50, choices=SERVICE_STATUS_CHOICES, default='Pending')
     notes = models.TextField(blank=True, null=True)
     cost = models.DecimalField(max_digits=10, decimal_places=2, default=40.00)# type: ignore
     created_at = models.DateTimeField(auto_now_add=True)
@@ -219,31 +116,24 @@ class Services(models.Model):
         managed = False
         db_table = 'services'
 
-class MaintenanceOrders(models.Model):
-    STATUS_CHOICES = [
-        ('Scheduled', 'Scheduled'), 
-        ('In Progress', 'In Progress'), 
-        ('Completed', 'Completed'), 
-        ('Cancelled', 'Cancelled')
-    ]
-    CODE_CHOICES = [
-        ('PM', 'Preventive Maintenance'),
-        ('CM', 'Corrective Maintenance'),
-        ('PdM', 'Predictive Maintenance')
-    ]
-
+class WorkOrders(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     services = models.ForeignKey(Services, on_delete=models.RESTRICT, null=True, blank=True)
     client = models.ForeignKey(Clients, on_delete=models.SET_NULL, null=True, blank=True, db_column='client_id')
     lead_technician = models.ForeignKey(Employees, on_delete=models.RESTRICT, null=True,blank=True, db_column='lead_technician_id')
     client_equipment = models.ForeignKey(ClientEquipment, on_delete=models.CASCADE,null=True,blank=True,db_column='client_equipment_id')
-    code = models.CharField(max_length=20, choices=CODE_CHOICES, null=True, blank=True)
+    code = models.CharField(max_length=20, choices=MAINTENANCE_CODE_CHOICES, null=True, blank=True)
+    pressure_suction = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    temperature_in = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    temperature_out = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    amps_reading = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+    voltage_reading = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     scheduled_date = models.DateField()
     completed_date = models.DateField(null=True, blank=True)
-    next_maintenance_date = models.DateField(null=True, blank=True)
+    next_work_date = models.DateField(null=True, blank=True)
     total_parts_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False) # type: ignore
     total_labor_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False) # type: ignore
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Scheduled')
+    status = models.CharField(max_length=20, choices=MAINTENANCE_STATUS_CHOICES, default='Scheduled')
     notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -257,7 +147,7 @@ class MaintenanceOrders(models.Model):
 
 class OrderPartsUsed(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    maintenance_order = models.ForeignKey(MaintenanceOrders, on_delete=models.CASCADE, db_column='maintenance_order_id')
+    work_order = models.ForeignKey(WorkOrders, on_delete=models.CASCADE, db_column='work_order_id')
     part_name = models.CharField(max_length=150)
     quantity = models.DecimalField(max_digits=10, decimal_places=2, default=1.00) # type: ignore
     unit_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) # type: ignore
@@ -275,7 +165,7 @@ class OrderPartsUsed(models.Model):
 
 class OrderLaborLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    maintenance_order = models.ForeignKey(MaintenanceOrders, on_delete=models.CASCADE, db_column='maintenance_order_id')
+    work_order = models.ForeignKey(WorkOrders, on_delete=models.CASCADE, db_column='work_order_id')
     technician = models.ForeignKey(Employees, on_delete=models.SET_NULL, null= True,blank=True, db_column='technician_id')
     employee_invoice = models.ForeignKey(EmployeeInvoices, on_delete=models.SET_NULL, null= True,blank=True, db_column='employee_invoice_id')
     hours_worked = models.DecimalField(max_digits=10, decimal_places=2)
@@ -294,27 +184,8 @@ class OrderLaborLog(models.Model):
         db_table = 'order_labor_log'
 
 class EquipmentFailures(models.Model):
-
-    SEVERITY_CHOICES = [
-        ('Low', 'Low'),
-        ('Medium', 'Medium'),
-        ('High', 'High'),
-        ('Critical', 'Critical')
-    ]
-    CATEGORY_CHOICES = [
-        ('Electrical', 'Electrical'),
-        ('Mechanical', 'Mechanical'),
-        ('Refrigeration Cycle', 'Refrigeration Cycle'),
-        ('Control System', 'Control System'),
-        ('Airflow', 'Airflow'),
-        ('Leaks', 'Leaks'),
-        ('Drainage', 'Drainage'),
-        ('Noise/Vibration', 'Noise/Vibration'),
-        ('Other', 'Other')
-    ]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    maintenance_order = models.ForeignKey(MaintenanceOrders, on_delete=models.SET_NULL, null=True, blank=True, db_column='maintenance_order_id')
+    work_order = models.ForeignKey(WorkOrders, on_delete=models.SET_NULL, null=True, blank=True, db_column='work_order_id')
     client_equipment = models.ForeignKey(ClientEquipment, on_delete=models.CASCADE, db_column='client_equipment_id')
     failure_category = models.CharField(max_length=100, choices=CATEGORY_CHOICES, blank=True, null=True)
     failure_description = models.CharField(max_length=100,blank=True, null=True)
@@ -333,26 +204,6 @@ class EquipmentFailures(models.Model):
         db_table = 'equipment_failures'
 
 class Leads(models.Model):
-    STATUS_CHOICES = [
-        ('New', 'New'),
-        ('Contacted', 'Contacted'),
-        ('Follow-up', 'Follow-up'),
-        ('Scheduled', 'Scheduled'),
-        ('Lost', 'Lost'),
-    ]
-    SERVICES_CHOICES = [
-        ('Inspection', 'Inspection'),
-        ('Installation', 'Installation'),
-        ('Maintenance', 'Maintenance')
-    ]
-    LEAD_TYPE_CHOICES = [
-        ('Residential', 'Residential'), 
-        ('Commercial', 'Commercial')]
-    GENDER_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female')
-    ]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     employee = models.ForeignKey(Employees, on_delete=models.SET_NULL, null=True, blank=True, db_column='employee_id')
     first_name = models.CharField(max_length=50)
@@ -360,9 +211,9 @@ class Leads(models.Model):
     gender = models.CharField(max_length=50, choices=GENDER_CHOICES, blank=True, null=True)
     email = models.EmailField(max_length=255)
     phone = models.CharField(max_length=50)
-    service_type = models.CharField(max_length=50, choices=SERVICES_CHOICES )
-    lead_type = models.CharField(max_length=20, choices=LEAD_TYPE_CHOICES, default='Residential')
-    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='New')
+    service_type = models.CharField(max_length=50, choices=LEADS_SERVICES_CHOICES )
+    lead_type = models.CharField(max_length=20, choices=CLIENT_TYPE_CHOICES, default='Residential')
+    status = models.CharField(max_length=50, choices=LEADS_STATUS_CHOICES, default='New')
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -375,19 +226,8 @@ class Leads(models.Model):
         db_table = 'leads'
 
 class Bills(models.Model):
-    PAYMENT_CHOICES = [
-        ('Paid', 'Paid'),
-        ('Unpaid', 'Unpaid'),
-        ('Overdue', 'Overdue')]
-    PAYMENT_METHOD_CHOICES = [
-        ('Credit Card', 'Credit Card'),
-        ('Debit Card', 'Debit Card'),
-        ('Cash', 'Cash'),
-        ('Bank Transfer', 'Bank Transfer'),
-        ('Other', 'Other'),]
-
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    maintenance_order = models.ForeignKey(MaintenanceOrders, on_delete=models.SET_NULL, null=True, blank=True, db_column='maintenance_order_id')
+    work_order = models.ForeignKey(WorkOrders, on_delete=models.SET_NULL, null=True, blank=True, db_column='work_order_id')
     service = models.ForeignKey(Services, on_delete=models.SET_NULL, null=True, blank=True, db_column='service_id')
     client = models.ForeignKey(Clients, on_delete=models.SET_NULL, null=True, blank=True,db_column='client_id')
     bill_date = models.DateField(default=date.today)

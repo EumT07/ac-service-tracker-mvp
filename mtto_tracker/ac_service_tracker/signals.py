@@ -1,7 +1,7 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.db.models import F,Sum
-from .models import OrderPartsUsed, OrderLaborLog, MaintenanceOrders, Bills, Services, EmployeeInvoices, Leads, Clients
+from .models import OrderPartsUsed, OrderLaborLog, WorkOrders, Bills, Services, EmployeeInvoices, Leads, Clients
 
 
 @receiver([post_save, post_delete], sender=OrderPartsUsed)
@@ -52,14 +52,15 @@ def update_inspection_fee_in_bill(sender, instance,**kwargs):
     except Exception as e:
             print(f"Unexpected error Bill: {e}")
 
-@receiver(post_save, sender=MaintenanceOrders)
+@receiver(post_save, sender=WorkOrders)
 def update_bill_totals_on_order_change(sender, instance, **kwargs):
     order = instance
     try:
         bill = Bills.objects.get(maintenance_order=order)
-        bill.total_labor_cost = order.total_labor_cost
-        bill.total_parts_cost = order.total_parts_cost
-        bill.save(update_fields=['total_labor_cost', 'total_parts_cost'])
+        if bill:
+            bill.total_labor_cost = order.total_labor_cost
+            bill.total_parts_cost = order.total_parts_cost
+            bill.save(update_fields=['total_labor_cost', 'total_parts_cost'])
 
         if order.status == 'completed':
             logs_sin_pagar = OrderLaborLog.objects.filter(maintenance_order=order, employee_invoice__isnull=True)
@@ -68,7 +69,7 @@ def update_bill_totals_on_order_change(sender, instance, **kwargs):
                 employee = log.user_id # type: ignore
 
                 invoice, created = EmployeeInvoices.objects.get_or_create(employee=employee,status='draft')
-                pay_for_this_log = log.hours_worked * employee.employee_hourly_rate
+                pay_for_this_log = log.hours_worked * invoice.employee_hourly_rate
                 invoice.total_hours_worked += log.hours_worked
                 invoice.employee_hourly_rate += pay_for_this_log
                 invoice.save(update_fields=['total_hours_worked','employee_hourly_rate'])

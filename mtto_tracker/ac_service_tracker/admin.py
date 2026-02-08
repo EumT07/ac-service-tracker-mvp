@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Clients, Employees, ClientEquipment, EquipmentFailures, MaintenanceOrders, Services,OrderPartsUsed, OrderLaborLog, Leads, Bills, EmployeeInvoices
+from .models import Clients, Employees, ClientEquipment, EquipmentFailures, WorkOrders, Services,OrderPartsUsed, OrderLaborLog, Leads, Bills, EmployeeInvoices
 # Register your models here.
 class OrderPartsInline(admin.TabularInline):
     model = OrderPartsUsed
@@ -25,7 +25,7 @@ class OrderLaborInline(admin.TabularInline):
 
 @admin.register(Leads)
 class LeadsAdmin(admin.ModelAdmin):
-    list_display = ('id', 'first_name', 'last_name', 'email', 'phone', 'employee', 'status')
+    list_display = ('id', 'first_name', 'last_name', 'email', 'phone', 'employee','service_type', 'status')
     search_fields = ('first_name', 'last_name', 'email', 'phone')
     list_display_links = ('id', 'phone')
     list_filter = ('status','service_type')
@@ -71,10 +71,10 @@ class EquipmentFailuresAdmin(admin.ModelAdmin):
     search_fields = ('client_equipment__equipment_name', 'failure_description')
     list_filter = ('failure_category', 'severity', 'detected_date')
 
-@admin.register(MaintenanceOrders)
-class MaintenanceOrdersAdmin(admin.ModelAdmin):
+@admin.register(WorkOrders)
+class WorkOrdersAdmin(admin.ModelAdmin):
     list_display = (
-        'code', 'client','scheduled_date','next_maintenance_date', 'total_parts_cost', 'total_labor_cost', 'get_total', 'status'
+        'code', 'client','scheduled_date','next_work_date', 'total_parts_cost', 'total_labor_cost', 'get_total', 'status'
     )
     # total_cost is readonly  (PostgreSQL)
     readonly_fields = ('total_parts_cost', 'total_labor_cost','get_total')

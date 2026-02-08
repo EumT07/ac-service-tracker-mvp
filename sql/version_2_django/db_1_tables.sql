@@ -73,31 +73,31 @@ CREATE TABLE client_equipment (
 CREATE TABLE services (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
   client_id UUID  REFERENCES clients(id) ON DELETE SET NULL,
-  client_equipment_id UUID  REFERENCES client_equipment(id) ON DELETE SET NULL,
-  lead_technician_id UUID  REFERENCES employees(id) ON DELETE SET NULL,
+  client_equipment_id UUID REFERENCES client_equipment(id) ON DELETE SET NULL,
+  lead_technician_id UUID REFERENCES employees(id) ON DELETE SET NULL,
   service_type VARCHAR(50) DEFAULT 'Inspection' CHECK (service_type IN ('Inspection','Installation' ,'Maintenance')),
-  pressure_suction DECIMAL(10,2),
-  temperature_in DECIMAL(10,2),
-  temperature_out DECIMAL(10,2),
-  amps_reading DECIMAL(10,2),
-  voltage_reading DECIMAL(10,2),
   service_date DATE NOT NULL DEFAULT CURRENT_DATE,
-  status VARCHAR(50) DEFAULT 'Pending' CHECK (status IN ('Pending', 'To Maintenance','To Service', 'Rejected')),
+  status VARCHAR(50) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved','Rejected')),
   notes TEXT,
-  cost DECIMAL(10,2) DEFAULT 40.00 CHECK (cost >= 40.00),
+  cost DECIMAL(10,2) DEFAULT 30.00 CHECK (cost >= 30.00),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE TABLE maintenance_orders (
+CREATE TABLE work_orders (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     services_id UUID UNIQUE REFERENCES services(id) ON DELETE RESTRICT,
     client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
     lead_technician_id UUID REFERENCES employees(id) ON DELETE SET NULL,
     client_equipment_id UUID REFERENCES client_equipment(id) ON DELETE SET NULL,
-    code VARCHAR(10) NOT NULL DEFAULT 'PM' CHECK (code IN ('PM', 'CM', 'PdM')),
+    code VARCHAR(10) NOT NULL DEFAULT 'PM' CHECK (code IN ('PM', 'CM', 'PdM','INSP','INST')),
+    pressure_suction DECIMAL(10,2),
+    temperature_in DECIMAL(10,2),
+    temperature_out DECIMAL(10,2),
+    amps_reading DECIMAL(10,2),
+    voltage_reading DECIMAL(10,2),
     scheduled_date DATE NOT NULL,
     completed_date DATE,
-    next_maintenance_date DATE,
+    next_work_date DATE,
     total_parts_cost DECIMAL(10,2) DEFAULT 0.00,
     total_labor_cost DECIMAL(10,2) DEFAULT 0.00,
     total_order_cost DECIMAL(10,2) GENERATED ALWAYS AS (total_parts_cost + total_labor_cost) STORED,
@@ -110,7 +110,7 @@ CREATE TABLE maintenance_orders (
 
 CREATE TABLE order_parts_used (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    maintenance_order_id UUID NOT NULL REFERENCES maintenance_orders(id) ON DELETE CASCADE,
+    work_order_id UUID NOT NULL REFERENCES work_orders(id) ON DELETE CASCADE,
     part_name VARCHAR(150) NOT NULL,
     quantity DECIMAL(10,2) NOT NULL DEFAULT 1.00,
     unit_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
@@ -121,11 +121,11 @@ CREATE TABLE order_parts_used (
 
 CREATE TABLE order_labor_log (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    maintenance_order_id UUID NOT NULL REFERENCES maintenance_orders(id) ON DELETE CASCADE,
+    work_order_id UUID NOT NULL REFERENCES work_orders(id) ON DELETE CASCADE,
     technician_id UUID REFERENCES employees(id) ON DELETE SET NULL,
     employee_invoice_id UUID REFERENCES employee_invoices(id) ON DELETE SET NULL,
     hours_worked DECIMAL(10,2), 
-    hourly_rate_at_time DECIMAL(10,2) NOT NULL, -- Price at the time of labor
+    hourly_rate_at_time DECIMAL(10,2) DEFAULT 0.00 CHECK (employee_hourly_rate >= 0),
     labor_description TEXT,
     line_total DECIMAL(10,2) GENERATED ALWAYS AS (hours_worked * hourly_rate_at_time) STORED,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -133,7 +133,7 @@ CREATE TABLE order_labor_log (
 
 CREATE TABLE equipment_failures (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  maintenance_order_id UUID REFERENCES maintenance_orders(id) ON DELETE SET NULL,
+  work_order_id UUID REFERENCES work_orders(id) ON DELETE SET NULL,
   client_equipment_id UUID NOT NULL REFERENCES client_equipment(id) ON DELETE CASCADE,
   failure_category VARCHAR(100),
   failure_description TEXT,
@@ -163,7 +163,7 @@ CREATE TABLE leads (
 
 CREATE TABLE bills (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    maintenance_order_id UUID UNIQUE REFERENCES maintenance_orders(id) ON DELETE SET NULL,
+    work_order_id UUID UNIQUE REFERENCES work_orders(id) ON DELETE SET NULL,
     service_id UUID UNIQUE REFERENCES services(id) ON DELETE SET NULL,
     client_id UUID REFERENCES clients(id) ON DELETE SET NULL,
     bill_date DATE NOT NULL DEFAULT CURRENT_DATE,
