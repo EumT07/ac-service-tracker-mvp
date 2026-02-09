@@ -111,9 +111,9 @@ CREATE TABLE work_orders (
 CREATE TABLE order_parts_used (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     work_order_id UUID NOT NULL REFERENCES work_orders(id) ON DELETE CASCADE,
-    part_name VARCHAR(150) NOT NULL,
-    quantity DECIMAL(10,2) NOT NULL DEFAULT 1.00,
-    unit_price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    part_name VARCHAR(150),
+    quantity DECIMAL(10,2) DEFAULT 1.00,
+    unit_price DECIMAL(10,2) DEFAULT 0.00,
     line_total DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -125,7 +125,7 @@ CREATE TABLE order_labor_log (
     technician_id UUID REFERENCES employees(id) ON DELETE SET NULL,
     employee_invoice_id UUID REFERENCES employee_invoices(id) ON DELETE SET NULL,
     hours_worked DECIMAL(10,2), 
-    hourly_rate_at_time DECIMAL(10,2) DEFAULT 0.00 CHECK (employee_hourly_rate >= 0),
+    hourly_rate_at_time DECIMAL(10,2) DEFAULT 0.00 CHECK (hourly_rate_at_time >= 0),
     labor_description TEXT,
     line_total DECIMAL(10,2) GENERATED ALWAYS AS (hours_worked * hourly_rate_at_time) STORED,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -173,6 +173,7 @@ CREATE TABLE bills (
     total_amount DECIMAL(10,2) GENERATED ALWAYS AS (total_labor_cost + total_parts_cost + service_fee) STORED,
     status VARCHAR(50) DEFAULT 'Unpaid' CHECK (status IN ('Unpaid', 'Paid', 'Overdue')),
     payment_method VARCHAR(50) CHECK (payment_method IN ('Cash', 'Transfer', 'Credit Card','Bank Transfer','Other')),
+    payment_reference VARCHAR(100),
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

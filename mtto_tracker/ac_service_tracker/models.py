@@ -12,7 +12,6 @@ from django.core.validators import MinValueValidator
 from choices.choices import ROLE_CHOICES, GENDER_CHOICES, CLIENT_TYPE_CHOICES, EMPLOYEE_STATUS_CHOICES, CLIENT_STATUS_CHOICES, CLIENT_CONDITIONS_CHOICES, EQUIPMENT_BTU_CHOICES, BRANDS_CHOICES, EQUIPMENT_CHOICES,SERVICE_STATUS_CHOICES, SERVICE_TYPE_CHOICES, MAINTENANCE_STATUS_CHOICES, MAINTENANCE_CODE_CHOICES, SEVERITY_CHOICES, CATEGORY_CHOICES, LEADS_STATUS_CHOICES, LEADS_SERVICES_CHOICES, PAYMENT_CHOICES, PAYMENT_METHOD_CHOICES
 
 
-
 class Employees(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     first_name = models.CharField(max_length=50)
@@ -29,7 +28,10 @@ class Employees(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"{self.first_name} {self.last_name} ({self.role})"
+        if self.is_active:
+            return f"{self.first_name} {self.last_name} ({self.role})"
+        else:
+            return f"{self.first_name} {self.last_name} ({self.role}) - Inactive"
 
     class Meta:
         managed = False
@@ -37,10 +39,10 @@ class Employees(models.Model):
 
 class Clients(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    first_name = models.CharField(max_length=50)
-    last_name = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=50,blank=True, null=True)
+    last_name = models.CharField(max_length=50,blank=True, null=True)
     email = models.EmailField(unique=True, max_length=255)
-    gender = models.CharField(max_length=50, choices=GENDER_CHOICES, blank=True, null=True)
+    gender = models.CharField(max_length=50, choices=GENDER_CHOICES)
     phone = models.CharField(unique=True, max_length=50)
     address = models.TextField(blank=True, null=True)
     client_type = models.CharField(max_length=50, choices=CLIENT_TYPE_CHOICES, default='Residential')
@@ -91,7 +93,7 @@ class ClientEquipment(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.client.first_name}: {self.client.phone} | {self.model}"
+        return f"{self.client.first_name} {self.client.last_name}: {self.client.phone} | {self.model}"
     
     class Meta:
         managed = False
@@ -110,7 +112,7 @@ class Services(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Service: {self.service_type} | Client: {self.client.first_name}"
+        return f"Service: {self.service_type} | Client: {self.client.first_name} {self.client.last_name} : {self.client.phone}  | Equipment: {self.client_equipment.model}"
 
     class Meta:
         managed = False
@@ -143,7 +145,7 @@ class WorkOrders(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'maintenance_orders'
+        db_table = 'work_orders'
 
 class OrderPartsUsed(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -169,7 +171,7 @@ class OrderLaborLog(models.Model):
     technician = models.ForeignKey(Employees, on_delete=models.SET_NULL, null= True,blank=True, db_column='technician_id')
     employee_invoice = models.ForeignKey(EmployeeInvoices, on_delete=models.SET_NULL, null= True,blank=True, db_column='employee_invoice_id')
     hours_worked = models.DecimalField(max_digits=10, decimal_places=2)
-    hourly_rate_at_time = models.DecimalField(max_digits=10, decimal_places=2)
+    hourly_rate_at_time = models.DecimalField(max_digits=10, decimal_places=2, editable=False)
     labor_description = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -236,6 +238,7 @@ class Bills(models.Model):
     service_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00) # type: ignore
     status = models.CharField(max_length=50, choices=PAYMENT_CHOICES, default='Unpaid')
     payment_method = models.CharField(max_length=100,choices=PAYMENT_METHOD_CHOICES,blank=True, null=True)
+    payment_reference = models.CharField(max_length=100, null=True, blank=True)
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

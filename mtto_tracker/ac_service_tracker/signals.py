@@ -1,15 +1,29 @@
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.db.models import F,Sum
-from .models import OrderPartsUsed, OrderLaborLog, WorkOrders, Bills, Services, EmployeeInvoices, Leads, Clients
+from .models import OrderPartsUsed, OrderLaborLog, WorkOrders, Bills, Services, EmployeeInvoices, Leads, Clients, Employees
+from datetime import date, timedelta
+import calendar
+
+def get_pay_period(d):
+    """Retorna (period_start, period_end) para la quincena de la fecha d"""
+    if d.day <= 15:
+        start = d.replace(day=1)
+        end = d.replace(day=15)
+    else:
+        start = d.replace(day=16)
+        # Last month's day
+        last_day = calendar.monthrange(d.year, d.month)[1]
+        end = d.replace(day=last_day)
+    return start, end
 
 
 @receiver([post_save, post_delete], sender=OrderPartsUsed)
 def update_order_parts_total(sender, instance, **kwargs):
-    order = instance.maintenance_order
+    order = instance.work_order
     
     if order:
-        total = OrderPartsUsed.objects.filter(maintenance_order=order).aggregate(
+        total = OrderPartsUsed.objects.filter(work_order=order).aggregate(
         total=Sum(F('quantity') * F('unit_price'))
         )['total'] or 0
     
@@ -18,10 +32,15 @@ def update_order_parts_total(sender, instance, **kwargs):
 
 @receiver([post_save, post_delete], sender=OrderLaborLog)
 def update_order_labor_total(sender, instance, **kwargs):
-    order = instance.maintenance_order
+    order = instance.work_order
+
+    if not instance.hourly_rate_at_time and instance.technician:
+        rate = instance.technician.employee_hourly_rate
+        OrderLaborLog.objects.filter(pk=instance.pk).update(hourly_rate_at_time=rate)
+        instance.hourly_rate_at_time = rate
     
     if order:
-        total = OrderLaborLog.objects.filter(maintenance_order=order).aggregate(
+        total = OrderLaborLog.objects.filter(work_order=order).aggregate(
         total=Sum(F('hours_worked') * F('hourly_rate_at_time'))
         )['total'] or 0
     
@@ -32,7 +51,8 @@ def update_order_labor_total(sender, instance, **kwargs):
 def update_inspection_fee_in_bill(sender, instance,**kwargs):
     bill = Bills.objects.filter(service=instance.id).first()
     try:
-        if instance.status.lower() in ['to maintenance', 'to service'] :
+        if instance.status.lower() == 'approved' :
+
             if not bill:
                 Bills.objects.create(
                     service=instance, 
@@ -56,26 +76,50 @@ def update_inspection_fee_in_bill(sender, instance,**kwargs):
 def update_bill_totals_on_order_change(sender, instance, **kwargs):
     order = instance
     try:
-        bill = Bills.objects.get(maintenance_order=order)
+        bill = Bills.objects.filter(work_order=order).first()
         if bill:
             bill.total_labor_cost = order.total_labor_cost
             bill.total_parts_cost = order.total_parts_cost
             bill.save(update_fields=['total_labor_cost', 'total_parts_cost'])
 
-        if order.status == 'completed':
-            logs_sin_pagar = OrderLaborLog.objects.filter(maintenance_order=order, employee_invoice__isnull=True)
+        if order.status.lower() == 'completed':
+            completion_date = instance.completed_date or date.today()
+            p_start, p_end = get_pay_period(completion_date)
+            logs = OrderLaborLog.objects.filter(work_order=order, employee_invoice__isnull=True,technician__isnull=False)
 
-            for log in logs_sin_pagar:
-                employee = log.user_id # type: ignore
+            for log in logs:
 
-                invoice, created = EmployeeInvoices.objects.get_or_create(employee=employee,status='draft')
-                pay_for_this_log = log.hours_worked * invoice.employee_hourly_rate
-                invoice.total_hours_worked += log.hours_worked
-                invoice.employee_hourly_rate += pay_for_this_log
-                invoice.save(update_fields=['total_hours_worked','employee_hourly_rate'])
-
+                #Create Invoice
+                invoice, created = EmployeeInvoices.objects.get_or_create(
+                    employee=log.technician,
+                    status='Draft',
+                    period_start=p_start,
+                    period_end=p_end,
+                    defaults={
+                    'notes': f"Factura acumulativa quincena {p_start} al {p_end}"
+                    })
                 log.employee_invoice = invoice
                 log.save(update_fields=['employee_invoice'])
+
+                totales_invoice = OrderLaborLog.objects.filter(employee_invoice=invoice).aggregate(
+                    h_total=Sum('hours_worked'),
+                    p_total=Sum(F('hours_worked') * F('hourly_rate_at_time'))
+                )
+
+                total_hours = totales_invoice['h_total'] or 0
+                total_money = totales_invoice['p_total'] or 0
+
+                if total_hours > 0:
+                    sql_rate = total_money / total_hours
+                else:
+                    sql_rate = instance.technician.employee_hourly_rate
+
+                invoice.total_hours_worked = total_hours
+                invoice.employee_hourly_rate = sql_rate
+                invoice.save(update_fields=['total_hours_worked','employee_hourly_rate'])
+
+    except Bills.DoesNotExist:
+            print("Error Bills")
 
     except Exception as e:
         print(f"Error updating bill totals: {e}")

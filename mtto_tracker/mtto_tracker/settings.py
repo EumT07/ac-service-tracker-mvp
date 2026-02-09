@@ -145,7 +145,7 @@ JAZZMIN_SETTINGS = {
         "ac_service_tracker.bills": "fas fa-file-invoice",
         "ac_service_tracker.leads": "fas fa-headset",
         "ac_service_tracker.EmployeeInvoices": "fas fa-file-invoice-dollar",
-        "ac_service_tracker.MaintenanceOrders": "fas fa-file-invoice-dollar", 
+        "ac_service_tracker.WorkOrders": "fas fa-helmet-safety", 
         "ac_service_tracker.EquipmentFailures": "fas fa-car-crash",
         "ac_service_tracker.OrderPartsUsed": "fas fa-cog",
         "ac_service_tracker.OrderLaborLog": "fas fa-user-clock",
