@@ -10,6 +10,7 @@ import uuid
 from datetime import date
 from django.core.validators import MinValueValidator
 from choices.choices import ROLE_CHOICES, GENDER_CHOICES, CLIENT_TYPE_CHOICES, EMPLOYEE_STATUS_CHOICES, CLIENT_STATUS_CHOICES, CLIENT_CONDITIONS_CHOICES, EQUIPMENT_BTU_CHOICES, BRANDS_CHOICES, EQUIPMENT_CHOICES,SERVICE_STATUS_CHOICES, SERVICE_TYPE_CHOICES, MAINTENANCE_STATUS_CHOICES, MAINTENANCE_CODE_CHOICES, SEVERITY_CHOICES, CATEGORY_CHOICES, LEADS_STATUS_CHOICES, LEADS_SERVICES_CHOICES, PAYMENT_CHOICES, PAYMENT_METHOD_CHOICES
+from decimal import Decimal
 
 
 class Employees(models.Model):
@@ -26,6 +27,13 @@ class Employees(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def cost_hourly_rate(self):
+        if self.employee_hourly_rate is not None:
+            rate_cost_services = (self.employee_hourly_rate * Decimal('0.5')) + self.employee_hourly_rate
+            return rate_cost_services
+
 
     def __str__(self):
         if self.is_active:
@@ -112,7 +120,7 @@ class Services(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Service: {self.service_type} | Client: {self.client.first_name} {self.client.last_name} : {self.client.phone}  | Equipment: {self.client_equipment.model}"
+        return f"Service: {self.service_type} | Client: {self.client.first_name} {self.client.last_name} : {self.client.phone}"
 
     class Meta:
         managed = False

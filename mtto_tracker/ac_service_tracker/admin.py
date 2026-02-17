@@ -43,6 +43,7 @@ class ClientsAdmin(admin.ModelAdmin):
 
 @admin.register(Employees)
 class EmployeesAdmin(admin.ModelAdmin):
+    readonly_fields = ('role','rate_hourly','cost_services','profit_margin')
     list_display = ('id', 'full_name', 'role','rate_hourly', 'is_active')
     search_fields = ('first_name', 'last_name', 'email')
     list_display_links = ('id', 'role')
@@ -52,9 +53,22 @@ class EmployeesAdmin(admin.ModelAdmin):
     def full_name(self, obj):
         return f"{obj.first_name} {obj.last_name}"
     
-    @admin.display(description='Rate', ordering='employee_hourly_rate')
+    @admin.display(description='Employee Rate', ordering='employee_hourly_rate')
     def rate_hourly(self, obj):
-        return f"$ {obj.employee_hourly_rate}"
+        return f"$ {obj.employee_hourly_rate:,.2f}"
+    
+    @admin.display(description='Cost Hourly Services', ordering='cost_services')
+    def cost_services(self, obj):
+        return f"$ {obj.cost_hourly_rate:,.2f}"
+
+    @admin.display(description="Profit Margin", ordering='profit_margin')
+    def profit_margin(self,obj):
+        if obj.employee_hourly_rate is not None:
+            margin = obj.cost_hourly_rate - obj.employee_hourly_rate
+            return f"$ {margin:.2f}"
+        return "N/A"
+    
+
 
 @admin.register(ClientEquipment)
 class ClientEquipmentAdmin(admin.ModelAdmin):

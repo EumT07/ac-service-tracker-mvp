@@ -6,7 +6,7 @@ from datetime import date, timedelta
 import calendar
 
 def get_pay_period(d):
-    """Retorna (period_start, period_end) para la quincena de la fecha d"""
+    """Retorn days to pay period based on day of months."""
     if d.day <= 15:
         start = d.replace(day=1)
         end = d.replace(day=15)
@@ -35,13 +35,13 @@ def update_order_labor_total(sender, instance, **kwargs):
     order = instance.work_order
 
     if not instance.hourly_rate_at_time and instance.technician:
-        rate = instance.technician.employee_hourly_rate
+        rate = instance.technician.cost_hourly_rate
         OrderLaborLog.objects.filter(pk=instance.pk).update(hourly_rate_at_time=rate)
         instance.hourly_rate_at_time = rate
     
     if order:
         total = OrderLaborLog.objects.filter(work_order=order).aggregate(
-        total=Sum(F('hours_worked') * F('hourly_rate_at_time'))
+            total=Sum(F('hours_worked') * F('hourly_rate_at_time'))
         )['total'] or 0
     
         order.total_labor_cost = total
@@ -96,7 +96,7 @@ def update_bill_totals_on_order_change(sender, instance, **kwargs):
                     period_start=p_start,
                     period_end=p_end,
                     defaults={
-                    'notes': f"Factura acumulativa quincena {p_start} al {p_end}"
+                    'notes': f"Bills from {p_start} to {p_end}"
                     })
                 log.employee_invoice = invoice
                 log.save(update_fields=['employee_invoice'])
@@ -110,7 +110,8 @@ def update_bill_totals_on_order_change(sender, instance, **kwargs):
                 total_money = totales_invoice['p_total'] or 0
 
                 if total_hours > 0:
-                    sql_rate = total_money / total_hours
+                    rate_service = (total_money / total_hours) - instance.technician.employee_hourly_rate
+                    sql_rate = (total_money / total_hours) - rate_service
                 else:
                     sql_rate = instance.technician.employee_hourly_rate
 
