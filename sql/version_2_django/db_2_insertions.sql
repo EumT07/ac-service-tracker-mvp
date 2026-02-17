@@ -1,84 +1,17 @@
-INSERT INTO equipment_brands (name) 
+-- Active Users
+INSERT INTO employees (first_name, last_name, email, phone, gender, address, password, role, employee_hourly_rate)
 VALUES 
-        ('Carrier'),
-        ('Trane'),
-        ('York'),
-        ('Daikin'),
-        ('Samsung'),
-        ('LG'),
-        ('McQuay'),
-        ('Lennox'),
-        ('Goodman'),
-        ('Daewoo'),
-        ('Mitsubishi Electric'),
-        ('Hitachi'),
-        ('Toshiba'),
-        ('Rheem'),
-        ('Bryant');
-
-INSERT INTO equipment_types (name) 
-VALUES 
-        ('Split Wall Mounted'),
-        ('Multi-Split'),
-        ('Chiller Air Cooled'), 
-        ('Chiller Water Cooled'),
-        ('Package Unit'),
-        ('Fan Coil Unit'),
-        ('Ducted System'),
-        ('Window Unit'),
-        ('Portable Unit'),
-        ('Central AC System'),
-        ('Furnace'),
-        ('Heat Pump'),
-        ('Ventilation System'),
-        ('Dehumidifier'),
-        ('Air Purifier'),
-        ('VRF System');
-
-INSERT INTO failure_categories (name) 
-VALUES 
-        ('Electrical'),
-        ('Mechanical'),
-        ('Refrigeration Cycle'),
-        ('Control System'),
-        ('Airflow'),
-        ('Leaks'),
-        ('Drainage'),
-        ('Noise/Vibration'),
-        ('Other');
-
-INSERT INTO maintenance_types (code, name, frequency_days, description) 
-VALUES 
-        ('PM', 'Preventive Maintenance', 90, 'Routine checkup and cleaning'),
-        ('CM', 'Corrective Maintenance', NULL, 'Repair after a failure has occurred'),
-        ('PdM', 'Predictive Maintenance', 180, 'Advanced analysis to predict future failures'),
-        ('PM', 'Preventive Maintenance', NULL, 'First time equipment assessment'),
-        ('PdM', 'Predictive Maintenance', NULL, 'Upgrading equipment components or software'),
-        ('CM', 'Corrective Maintenance', NULL, 'Emergency repair services'),
-        ('PM', 'Preventive Maintenance', 180, 'Seasonal maintenance before peak usage periods'),
-        ('PdM', 'Predictive Maintenance', 365, 'Annual performance evaluation and tuning'),
-        ('CM', 'Corrective Maintenance', NULL, 'Post-warranty repair services'),
-        ('PM', 'Preventive Maintenance', 60, 'Monthly system inspection and calibration'),
-        ('PdM', 'Predictive Maintenance', 90, 'Vibration analysis and monitoring'),
-        ('CM', 'Corrective Maintenance', NULL, 'On-site troubleshooting and repair'),
-        ('PM', 'Preventive Maintenance', 120, 'Quarterly filter replacement and cleaning'),
-        ('PdM', 'Predictive Maintenance', 240, 'Thermographic inspections and analysis'),
-        ('CM', 'Corrective Maintenance', NULL, 'Component replacement and upgrades');
-
-INSERT INTO failure_types (category_id, name, severity)
-VALUES 
-        ((SELECT id FROM failure_categories WHERE name = 'Electrical'), 'Compressor Motor Burnout', 'Critical'),
-        ((SELECT id FROM failure_categories WHERE name = 'Refrigeration Cycle'), 'Low Refrigerant Charge', 'Medium'),
-        ((SELECT id FROM failure_categories WHERE name = 'Mechanical'), 'Blower Wheel Imbalance', 'Low'),
-        ((SELECT id FROM failure_categories WHERE name = 'Control System'), 'Thermostat Communication Error', 'Medium'),
-        ((SELECT id FROM failure_categories WHERE name = 'Leaks'), 'Water Condensate Overflow', 'Low'),
-        ((SELECT id FROM failure_categories WHERE name = 'Airflow'), 'Clogged Air Filters', 'Low'),
-        ((SELECT id FROM failure_categories WHERE name = 'Noise/Vibration'), 'Unusual Operational Noises', 'Medium'),
-        ((SELECT id FROM failure_categories WHERE name = 'Electrical'), 'Capacitor Failure', 'High'),
-        ((SELECT id FROM failure_categories WHERE name = 'Mechanical'), 'Fan Motor Failure', 'High'),
-        ((SELECT id FROM failure_categories WHERE name = 'Refrigeration Cycle'), 'Evaporator Coil Freeze-Up', 'Medium'),
-        ((SELECT id FROM failure_categories WHERE name = 'Control System'), 'Control Board Malfunction', 'High'),
-        ((SELECT id FROM failure_categories WHERE name = 'Leaks'), 'Refrigerant Leak', 'Critical'),
-        ((SELECT id FROM failure_categories WHERE name = 'Airflow'), 'Ductwork Leaks', 'Medium'),
-        ((SELECT id FROM failure_categories WHERE name = 'Noise/Vibration'), 'Vibration Issues', 'Low'),
-        ((SELECT id FROM failure_categories WHERE name = 'Other'), 'Miscellaneous Issues', 'Low');
+    ('Juan', 'Pérez', 'juanperez@gmail.com', '+58-400-111-0001', 'Male', 'Av. Francisco de Miranda, Caracas, Distrito Capital', 'hashed_password_123', 'Admin', 20.50),
+    ('María', 'González', 'mariagonzalez@hotmail.com', '+58-400-111-0002', 'Female', 'Calle 72, Maracaibo, Zulia', 'hashed_password_123', 'Admin', 23.00),
+    ('Carlos', 'Rodríguez', 'carlosrodriguez@outlook.com', '+58-400-111-0003', 'Male', 'Av. Bolívar, Valencia, Carabobo', 'hashed_password_123', 'Technician', 28.50),
+    ('José', 'López', 'joselopez@gmail.com', '+58-400-111-0004', 'Male', 'Calle 5, Barquisimeto, Lara', 'hashed_password_123', 'Technician', 30.00),
+    ('Francisco', 'Silva', 'franciscosilva@outlook.com', '+58-400-111-0009', 'Male', 'Av. Páez, Caracas, Distrito Capital', 'hashed_password_123', 'Trainer', 18.00),
+    ('Manuel', 'Rodríguez', 'manuelrodriguez@gmail.com', '+58-400-111-0013', 'Male', 'Calle 72, Maracaibo, Zulia', 'hashed_password_123', 'Trainer', 15.00),
+    ('Pedro', 'García', 'pedrogarcia2@hotmail.com', '+58-400-111-0017', 'Male', 'Calle 10, Maracay, Aragua', 'hashed_password_123', 'Operator', 18.50),
+    ('Carmen', 'Silva', 'carmensilva@outlook.com', '+58-400-111-0018', 'Female', 'Av. Lara, Barquisimeto, Lara', 'hashed_password_123', 'Operator', 16.75);
+-- False Users
+INSERT INTO employees (first_name, last_name, email, phone, gender, address, password, role, employee_hourly_rate, is_active)
+VALUES
+    ('Adrian', 'Carrillo', 'adriancarrillo@gmail.com', '+58-400-111-0023', 'Male', 'Calle 1, Caracas, Distrito Capital', 'hashed_password_123', 'Technician', 25.00, False),
+    ('Patricia', 'González', 'patriciagonzalez@gmail.com', '+58-400-111-0022', 'Female', 'Av. Circunvalación, Valencia, Carabobo', 'hashed_password_123', 'Operator', 20.00, False),
+    ('Rafael', 'Rojas', 'rafaelrojas@gmail.com', '+58-400-111-0010', 'Male', 'Calle 20, Maracaibo, Zulia', 'hashed_password_123', 'Trainer', 33.25, False);
