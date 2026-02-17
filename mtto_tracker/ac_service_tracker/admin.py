@@ -69,7 +69,6 @@ class EmployeesAdmin(admin.ModelAdmin):
         return "N/A"
     
 
-
 @admin.register(ClientEquipment)
 class ClientEquipmentAdmin(admin.ModelAdmin):
     # 'brand' y 'equipment_type' now are objects

@@ -85,7 +85,7 @@ def update_bill_totals_on_order_change(sender, instance, **kwargs):
         if order.status.lower() == 'completed':
             completion_date = instance.completed_date or date.today()
             p_start, p_end = get_pay_period(completion_date)
-            logs = OrderLaborLog.objects.filter(work_order=order, employee_invoice__isnull=True,technician__isnull=False)
+            logs = OrderLaborLog.objects.filter(work_order=order)
 
             for log in logs:
 
@@ -110,10 +110,10 @@ def update_bill_totals_on_order_change(sender, instance, **kwargs):
                 total_money = totales_invoice['p_total'] or 0
 
                 if total_hours > 0:
-                    rate_service = (total_money / total_hours) - instance.technician.employee_hourly_rate
+                    rate_service = (total_money / total_hours) - log.technician.employee_hourly_rate # type: ignore
                     sql_rate = (total_money / total_hours) - rate_service
                 else:
-                    sql_rate = instance.technician.employee_hourly_rate
+                    sql_rate = log.technician.employee_hourly_rate # type: ignore
 
                 invoice.total_hours_worked = total_hours
                 invoice.employee_hourly_rate = sql_rate
@@ -130,11 +130,22 @@ def create_bill_on_lead_conversion(sender, instance, created, **kwargs):
 
     try:
         if instance.status.lower() == 'scheduled':
-            services_cost = {
-                'inspection': 40.00,
+
+            services_cost = None
+
+            if instance.lead_type.lower() == 'residential':
+                services_cost = {
+                'inspection': 50.00,
                 'installation': 150.00,
-                'maintenance': 20.00
+                'maintenance': 40.00
             }
+            elif instance.lead_type.lower() == 'commercial':
+                services_cost = {
+                'inspection': 80.00,
+                'installation': 220.00,
+                'maintenance': 70.00
+            }
+
             client, created = Clients.objects.get_or_create(
                 email=instance.email,
                 defaults={
@@ -151,7 +162,7 @@ def create_bill_on_lead_conversion(sender, instance, created, **kwargs):
                 notes__icontains=f"Lead ID: {instance.id}", 
                 defaults={
                     'status': 'Pending',
-                    'cost': services_cost.get(instance.service_type.lower()),
+                    'cost': services_cost.get(instance.service_type.lower()), #type: ignore
                     'notes': f"Provisional - Lead ID: {instance.id}. Call to confirm."
                 }
             )

@@ -9,7 +9,7 @@ from django.db import models
 import uuid
 from datetime import date
 from django.core.validators import MinValueValidator
-from choices.choices import ROLE_CHOICES, GENDER_CHOICES, CLIENT_TYPE_CHOICES, EMPLOYEE_STATUS_CHOICES, CLIENT_STATUS_CHOICES, CLIENT_CONDITIONS_CHOICES, EQUIPMENT_BTU_CHOICES, BRANDS_CHOICES, EQUIPMENT_CHOICES,SERVICE_STATUS_CHOICES, SERVICE_TYPE_CHOICES, MAINTENANCE_STATUS_CHOICES, MAINTENANCE_CODE_CHOICES, SEVERITY_CHOICES, CATEGORY_CHOICES, LEADS_STATUS_CHOICES, LEADS_SERVICES_CHOICES, PAYMENT_CHOICES, PAYMENT_METHOD_CHOICES
+from choices.choices import ROLE_CHOICES, GENDER_CHOICES, CLIENT_TYPE_CHOICES, EMPLOYEE_STATUS_CHOICES, CLIENT_STATUS_CHOICES, CLIENT_CONDITIONS_CHOICES, EQUIPMENT_BTU_CHOICES, BRANDS_CHOICES, EQUIPMENT_CHOICES,SERVICE_STATUS_CHOICES, SERVICE_TYPE_CHOICES, MAINTENANCE_STATUS_CHOICES, MAINTENANCE_CODE_CHOICES, SEVERITY_CHOICES, CATEGORY_CHOICES, LEADS_STATUS_CHOICES, LEADS_SERVICES_CHOICES, PAYMENT_CHOICES, PAYMENT_METHOD_CHOICES, SERVICE_TYPE_COST_CHOICES
 from decimal import Decimal
 
 
@@ -81,6 +81,9 @@ class EmployeeInvoices(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def __str__(self):
+        return f"{self.employee.first_name} {self.employee.last_name}: {self.total_hours_worked} hours"
+
     class Meta:
         managed = False
         db_table = 'employee_invoices'
@@ -116,11 +119,12 @@ class Services(models.Model):
     service_date = models.DateField(default=date.today)
     status = models.CharField(max_length=50, choices=SERVICE_STATUS_CHOICES, default='Pending')
     notes = models.TextField(blank=True, null=True)
-    cost = models.DecimalField(max_digits=10, decimal_places=2, default=40.00)# type: ignore
+    cost = models.DecimalField(max_digits=10, decimal_places=2, choices=SERVICE_TYPE_COST_CHOICES, default=40.00)# type: ignore
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"Service: {self.service_type} | Client: {self.client.first_name} {self.client.last_name} : {self.client.phone}"
+        full_name = f"{self.client.first_name} {self.client.last_name}" if self.client else "Unknown Client"
+        return f"Service: {self.service_type} : {self.service_date} | Client: {full_name} : {self.client.phone} "
 
     class Meta:
         managed = False
@@ -149,7 +153,14 @@ class WorkOrders(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Order {self.code} for {self.client.first_name} - {self.client_equipment.model}" # type: ignore
+        response = f"Order {self.code} for {self.client.first_name} - {self.client_equipment.model} " # type: ignore
+        if self.status.lower() == 'completed':
+            return response + 'Completed' # type: ignore
+        elif self.status.lower() == 'in progress':
+            return response + 'In Progress' # type: ignore
+        elif self.status.lower() == 'cancelled':
+            return response + 'Cancelled' # type: ignore
+        return response + 'Scheduled' # type: ignore
 
     class Meta:
         managed = False

@@ -97,6 +97,14 @@ SERVICE_TYPE_CHOICES = [
         ('Installation' ,'Installation'),
         ('Maintenance','Maintenance')
     ]
+SERVICE_TYPE_COST_CHOICES = [
+        (50.00, 'Residential-Ins: $ 50.00'),
+        (150.00, 'Residential-Installation: $ 150.00'),
+        (40.00, 'Residential-Maintenance: $ 40.00'),
+        (80.00, 'Commercial-Ins: $ 80.00'),
+        (220.00, 'Commercial-Installation: $ 220.00'),
+        (70.00, 'Commercial-Maintenance: $ 70.00')
+    ]
 
 MAINTENANCE_STATUS_CHOICES = [
         ('Scheduled', 'Scheduled'), 
