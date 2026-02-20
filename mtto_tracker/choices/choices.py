@@ -92,11 +92,13 @@ SERVICE_STATUS_CHOICES = [
         ('Approved', 'Approved'),
         ('Rejected', 'Rejected'),
     ]
+
 SERVICE_TYPE_CHOICES = [
         ('Inspection','Inspection' ),
         ('Installation' ,'Installation'),
         ('Maintenance','Maintenance')
     ]
+
 SERVICE_TYPE_COST_CHOICES = [
         (50.00, 'Residential-Ins: $ 50.00'),
         (150.00, 'Residential-Installation: $ 150.00'),
@@ -139,7 +141,6 @@ CATEGORY_CHOICES = [
         ('Other', 'Other')
     ]
 
-# Leads Choices
 LEADS_STATUS_CHOICES = [
         ('New', 'New'),
         ('Contacted', 'Contacted'),
@@ -153,14 +154,14 @@ LEADS_SERVICES_CHOICES = [
         ('Maintenance', 'Maintenance')
     ]
 
-#Payment Choices
 PAYMENT_CHOICES = [
         ('Paid', 'Paid'),
         ('Unpaid', 'Unpaid'),
         ('Overdue', 'Overdue')]
+
 PAYMENT_METHOD_CHOICES = [
-        ('Credit Card', 'Credit Card'),
-        ('Debit Card', 'Debit Card'),
         ('Cash', 'Cash'),
+        ('Debit Card', 'Debit Card'),
+        ('Credit Card', 'Credit Card'),
         ('Bank Transfer', 'Bank Transfer'),
-        ('Other', 'Other'),]
+        ('Other', 'Other')]
