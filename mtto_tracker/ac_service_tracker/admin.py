@@ -6,22 +6,40 @@ class OrderPartsInline(admin.TabularInline):
     extra = 1
     readonly_fields = ('display_line_total',)
 
+    @admin.display(description='Subtotal', ordering='line_total')
     def display_line_total(self, obj):
         if not obj.id or obj.quantity is None or obj.unit_price is None:
             return "$0.00"
         return f"$ {obj.line_total:,.2f}"
-    display_line_total.short_description = "Subtotal"
 
 class OrderLaborInline(admin.TabularInline):
     model = OrderLaborLog
     extra = 1
     readonly_fields = ('display_line_total',)
 
+    @admin.display(description='Subtotal', ordering='line_total')
     def display_line_total(self, obj):
         if not obj.id or obj.hours_worked is None or obj.hourly_rate_at_time is None:
             return "$0.00"
         return f"$ {obj.line_total:,.2f}"
-    display_line_total.short_description = "Subtotal"
+
+class WorkOrderInline(admin.TabularInline):
+    model = WorkOrders
+    extra = 0
+    fields = ['status', 'lead_technician']
+    readonly_fields = ['status','lead_technician']
+    can_delete = False
+
+class BillsInline(admin.TabularInline):
+    model = Bills
+    extra = 0
+    fields = ['status', 'service_fee', 'total_amount']
+    readonly_fields = ['status', 'service_fee', 'total_amount']
+    can_delete = False
+
+    @admin.display(description='Total Amount', ordering='total_parts_cost')
+    def total_amount(self, obj):
+        return f"$ {obj.total_parts_cost + obj.total_labor_cost + obj.service_fee:,.2f}"
 
 @admin.register(Leads)
 class LeadsAdmin(admin.ModelAdmin):
@@ -36,6 +54,7 @@ class ClientsAdmin(admin.ModelAdmin):
     search_fields = ('first_name', 'last_name', 'email', 'phone')
     list_display_links = ('id', 'phone')
     list_filter = ('client_type', 'gender')
+    inlines = [WorkOrderInline, BillsInline]
 
     @admin.display(description='Full Name', ordering='first_name')
     def full_name(self, obj):
@@ -68,7 +87,6 @@ class EmployeesAdmin(admin.ModelAdmin):
             return f"$ {margin:.2f}"
         return "N/A"
     
-
 @admin.register(ClientEquipment)
 class ClientEquipmentAdmin(admin.ModelAdmin):
     # 'brand' y 'equipment_type' now are objects
@@ -101,7 +119,7 @@ class WorkOrdersAdmin(admin.ModelAdmin):
 
 @admin.register(Services)
 class ServicesAdmin(admin.ModelAdmin):
-    list_display = ('id','client__first_name', 'service_type', 'cost','status' )
+    list_display = ('id','client__first_name', 'service_type', 'cost','status', 'is_active' )
     search_fields = ('client__first_name', 'client_equipment__model', 'status')
     list_filter = ('status', 'lead_technician', 'service_date')
 

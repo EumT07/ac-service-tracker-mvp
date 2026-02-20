@@ -79,7 +79,8 @@ CREATE TABLE services (
   service_date DATE NOT NULL DEFAULT CURRENT_DATE,
   status VARCHAR(50) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved','Rejected')),
   notes TEXT,
-  cost DECIMAL(10,2) DEFAULT 30.00 CHECK (cost >= 30.00),
+  cost DECIMAL(10,2) DEFAULT 40.00 CHECK (cost >= 40.00),
+  is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -95,7 +96,7 @@ CREATE TABLE work_orders (
     temperature_out DECIMAL(10,2),
     amps_reading DECIMAL(10,2),
     voltage_reading DECIMAL(10,2),
-    scheduled_date DATE NOT NULL,
+    scheduled_date DATE,
     completed_date DATE,
     next_work_date DATE,
     total_parts_cost DECIMAL(10,2) DEFAULT 0.00,
@@ -112,7 +113,7 @@ CREATE TABLE order_parts_used (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     work_order_id UUID NOT NULL REFERENCES work_orders(id) ON DELETE CASCADE,
     part_name VARCHAR(150),
-    quantity DECIMAL(10,2) DEFAULT 1.00,
+    quantity DECIMAL(10,2) DEFAULT 0.00,
     unit_price DECIMAL(10,2) DEFAULT 0.00,
     line_total DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -172,7 +173,7 @@ CREATE TABLE bills (
     service_fee DECIMAL(10,2) DEFAULT 0.00,
     total_amount DECIMAL(10,2) GENERATED ALWAYS AS (total_labor_cost + total_parts_cost + service_fee) STORED,
     status VARCHAR(50) DEFAULT 'Unpaid' CHECK (status IN ('Unpaid', 'Paid', 'Overdue')),
-    payment_method VARCHAR(50) CHECK (payment_method IN ('Cash', 'Transfer', 'Credit Card','Bank Transfer','Other')),
+    payment_method VARCHAR(50) CHECK (payment_method IN ('Cash', 'Debit Card', 'Credit Card','Bank Transfer','Other')),
     payment_reference VARCHAR(100),
     notes TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

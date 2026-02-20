@@ -9,6 +9,7 @@ from django.db import models
 import uuid
 from datetime import date
 from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
 from choices.choices import ROLE_CHOICES, GENDER_CHOICES, CLIENT_TYPE_CHOICES, EMPLOYEE_STATUS_CHOICES, CLIENT_STATUS_CHOICES, CLIENT_CONDITIONS_CHOICES, EQUIPMENT_BTU_CHOICES, BRANDS_CHOICES, EQUIPMENT_CHOICES,SERVICE_STATUS_CHOICES, SERVICE_TYPE_CHOICES, MAINTENANCE_STATUS_CHOICES, MAINTENANCE_CODE_CHOICES, SEVERITY_CHOICES, CATEGORY_CHOICES, LEADS_STATUS_CHOICES, LEADS_SERVICES_CHOICES, PAYMENT_CHOICES, PAYMENT_METHOD_CHOICES, SERVICE_TYPE_COST_CHOICES
 from decimal import Decimal
 
@@ -119,7 +120,8 @@ class Services(models.Model):
     service_date = models.DateField(default=date.today)
     status = models.CharField(max_length=50, choices=SERVICE_STATUS_CHOICES, default='Pending')
     notes = models.TextField(blank=True, null=True)
-    cost = models.DecimalField(max_digits=10, decimal_places=2, choices=SERVICE_TYPE_COST_CHOICES, default=40.00)# type: ignore
+    cost = models.DecimalField(max_digits=10, decimal_places=2, default=40.00)# type: ignore
+    is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -142,7 +144,7 @@ class WorkOrders(models.Model):
     temperature_out = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     amps_reading = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
     voltage_reading = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    scheduled_date = models.DateField()
+    scheduled_date = models.DateField(null=True, blank=True)
     completed_date = models.DateField(null=True, blank=True)
     next_work_date = models.DateField(null=True, blank=True)
     total_parts_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00, editable=False) # type: ignore
@@ -200,6 +202,16 @@ class OrderLaborLog(models.Model):
             return self.hours_worked * self.hourly_rate_at_time
         return 0
     
+    # def clean(self):
+    #     if self.work_order and self.work_order.status.lower() == 'completed':
+    #         raise ValidationError(
+    #             f"ERROR: Order #{self.work_order.id} is completed, Cannot add labor log entries to a completed order."
+    #         )
+    
+    # def save(self, *args, **kwargs):
+    #     self.full_clean()
+    #     super().save(*args, **kwargs)
+    
     class Meta:
         managed = False
         db_table = 'order_labor_log'
@@ -232,8 +244,8 @@ class Leads(models.Model):
     gender = models.CharField(max_length=50, choices=GENDER_CHOICES, blank=True, null=True)
     email = models.EmailField(max_length=255)
     phone = models.CharField(max_length=50)
-    service_type = models.CharField(max_length=50, choices=LEADS_SERVICES_CHOICES )
     lead_type = models.CharField(max_length=20, choices=CLIENT_TYPE_CHOICES, default='Residential')
+    service_type = models.CharField(max_length=50, choices=LEADS_SERVICES_CHOICES )
     status = models.CharField(max_length=50, choices=LEADS_STATUS_CHOICES, default='New')
     notes = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
